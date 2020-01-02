@@ -25,17 +25,24 @@ while True:
         try:
             userinfo = database.user_login(data['login']['user_id'], data['login']['password'])
             if userinfo:
-                if len(logged_in_users) == 0 or (len(logged_in_users) == 1 and logged_in_users[0][0] == userinfo[0]):
-                    logged_in_users.append(userinfo)
+                if len(logged_in_users) >= 2:
+                    response['ok'] = False
+                    response['error'] = '房間已滿'
+                elif len(logged_in_users) == 1 and logged_in_users[0][0] == userinfo[0]:
+                    response['ok'] = False
+                    response['error'] = '此帳號已在其他地方登入'
+                else:
                     response['ok'] = True
                     response['userinfo'] = userinfo
-                else:
-                    response['ok'] = False
+                    logged_in_users.append(userinfo)
             else:
                 response['ok'] = False
-        except Exception:
+                response['error'] = '帳號或密碼錯誤'
+        except Exception as e:
             response['ok'] = False
+            response['error'] = str(e)
 
+    print(response)
     response = json.dumps(response)
 
     data = response.encode()

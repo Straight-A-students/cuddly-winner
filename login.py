@@ -78,13 +78,14 @@ class LoginWindow:
         elif password == "":
             messagebox.showinfo("Alert!", "Enter Password First")
         else:
-            userinfo = linker.user_login(user_id, password)
-            if userinfo:
+            state, userinfo = linker.user_login(user_id, password)
+            if state:
                 messagebox.showinfo("Message", "Login Successfully")
                 self.win.destroy()
                 self.userinfo = userinfo
             else:
-                messagebox.showinfo("ALert!", "Wrong username/password")
+                messagebox.showinfo("ALert!", userinfo)
+                userinfo = None
 
     def get_userinfo(self):
         return self.userinfo

@@ -1,4 +1,5 @@
-import argparse, socket
+import argparse
+import socket
 import json
 from config import SERVER_HOST, SERVER_PORT
 import traceback
@@ -22,11 +23,14 @@ class Client:
 
             response = json.loads(data.decode())
 
-            if 'ok' in response and response['ok']:
-                return response['userinfo']
+            if 'ok' in response:
+                if response['ok']:
+                    return (True, response['userinfo'])
+                else:
+                    return (False, response['error'])
             else:
-                return False
+                return (False, 'Server Error.')
 
         except Exception as e:
             traceback.print_exc()
-            return False
+            return (False, e)
