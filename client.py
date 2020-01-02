@@ -1,9 +1,10 @@
 import argparse, socket
 import json
-from config import DB_HOST, DB_NAME, DB_PASS, DB_USER, SERVER_HOST, SERVER_PORT
+from config import SERVER_HOST, SERVER_PORT
+import traceback
 
 
-class DB:
+class Client:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -15,11 +16,11 @@ class DB:
                     'password': password
                 }
             }
-            payload = json.dumps(payload)
-            sock.sendto(payload, (SERVER_HOST, SERVER_PORT))
-            data, address = sock.recvfrom(1024)
+            payload = json.dumps(payload).encode()
+            self.sock.sendto(payload, (SERVER_HOST, SERVER_PORT))
+            data, _ = self.sock.recvfrom(1024)
 
-            response = data.decode()
+            response = json.loads(data.decode())
 
             if 'ok' in response and response['ok']:
                 return response['userinfo']
@@ -27,5 +28,5 @@ class DB:
                 return False
 
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             return False

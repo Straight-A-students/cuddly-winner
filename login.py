@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
-from db import DB
+# from db import DB
+from client import Client
 
-database = DB()
+linker = Client()
 
 
 class LoginWindow:
@@ -77,7 +78,7 @@ class LoginWindow:
         elif password == "":
             messagebox.showinfo("Alert!", "Enter Password First")
         else:
-            userinfo = database.user_login(user_id, password)
+            userinfo = linker.user_login(user_id, password)
             if userinfo:
                 messagebox.showinfo("Message", "Login Successfully")
                 self.win.destroy()
