@@ -60,7 +60,8 @@ class Game:
                 'NotoSansTC-Regular.otf',
                 25,
                 (255, 0, 0),
-                self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2
+                self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
+                center=True
             )
 
         pygame.display.flip()
