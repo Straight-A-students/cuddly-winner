@@ -69,21 +69,18 @@ class LoginWindow:
 
     def login(self):
         # get the data and store it into tuple (data)
-        data = (
-            self.userid.get(),
-            self.password.get()
-        )
+        user_id = self.userid.get(),
+        password = self.password.get()
         # validations
-        if self.userid.get() == "":
+        if user_id == "":
             messagebox.showinfo("Alert!", "Enter UserID First")
-        elif self.password.get() == "":
+        elif password == "":
             messagebox.showinfo("Alert!", "Enter Password First")
         else:
-            userinfo = database.user_login(data)
+            userinfo = database.user_login(user_id, password)
             if userinfo:
                 messagebox.showinfo("Message", "Login Successfully")
                 self.win.destroy()
-                #x = dashboard.DashboardWindow()
                 self.userinfo = userinfo
             else:
                 messagebox.showinfo("ALert!", "Wrong username/password")
