@@ -1,4 +1,5 @@
 import pymysql
+import traceback
 from config import DB_HOST, DB_NAME, DB_PASS, DB_USER
 
 
@@ -22,7 +23,7 @@ class DB:
             row = self.cursor.fetchone()
             return row
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             return False
 
     def add_record(self, tup):
@@ -31,5 +32,5 @@ class DB:
             self.con.commit()
             return True
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             return False
