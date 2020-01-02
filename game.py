@@ -1,10 +1,6 @@
 import random
 import time
 import pygame
-from db import DB
-
-
-database = DB()
 
 
 class Game:
@@ -12,9 +8,11 @@ class Game:
     SCREEN_HEIGHT = 500
     STATUS_WAIT = 0
     STATUS_QUIT = 1
+    STATUS_REALDY = 2
 
-    def __init__(self, userinfo):
+    def __init__(self, userinfo, linker):
         self.userinfo = userinfo
+        self.linker = linker
         self.status = self.STATUS_WAIT
 
         pygame.init()
@@ -32,6 +30,12 @@ class Game:
             self.display_frame(self.screen)
             self.clock.tick(60)
             self.process_events()
+
+            #
+            message = self.linker.wait_server_message()
+            if message:
+                if message['status'] == 'ready':
+                    self.status = self.STATUS_REALDY
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -57,6 +61,15 @@ class Game:
         if self.status == self.STATUS_WAIT:
             self.show_text(
                 '等待另一位玩家',
+                'NotoSansTC-Regular.otf',
+                25,
+                (255, 0, 0),
+                self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
+                center=True
+            )
+        if self.status == self.STATUS_REALDY:
+            self.show_text(
+                '準備開始',
                 'NotoSansTC-Regular.otf',
                 25,
                 (255, 0, 0),

@@ -21,7 +21,11 @@ def send_message(to, message):
 
 logged_in_users = []  # 紀錄已登入使用者
 while True:
-    data, address = sock.recvfrom(1024)
+    try:
+        data, address = sock.recvfrom(1024)
+    except Exception as e:
+        print(e)
+        continue
     text = data.decode()
     try:
         data = json.loads(text)

@@ -8,6 +8,21 @@ import traceback
 class Client:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.settimeout(None)
+
+    def wait_server_message(self):
+        try:
+            self.sock.settimeout(1)
+            # print('try to recv')
+            data = self.sock.recv(1024)
+            self.sock.settimeout(None)
+            data = json.loads(data.decode())
+            print(data)
+            return data
+        except socket.timeout:
+            self.sock.settimeout(None)
+            # print('Time out')
+            return None
 
     def user_login(self, user_id, password):
         try:
@@ -19,7 +34,8 @@ class Client:
             }
             payload = json.dumps(payload).encode()
             self.sock.sendto(payload, (SERVER_HOST, SERVER_PORT))
-            data, _ = self.sock.recvfrom(1024)
+            data = self.sock.recv(1024)
+            print(data.decode())
 
             response = json.loads(data.decode())
 

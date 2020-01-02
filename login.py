@@ -1,15 +1,12 @@
 from tkinter import *
 from tkinter import messagebox
-# from db import DB
-from client import Client
-
-linker = Client()
 
 
 class LoginWindow:
     userinfo = None
 
-    def __init__(self):
+    def __init__(self, linker):
+        self.linker = linker
         self.win = Tk()
         # reset the window and background color
         self.canvas = Canvas(self.win,
@@ -78,7 +75,7 @@ class LoginWindow:
         elif password == "":
             messagebox.showinfo("Alert!", "Enter Password First")
         else:
-            state, userinfo = linker.user_login(user_id, password)
+            state, userinfo = self.linker.user_login(user_id, password)
             if state:
                 messagebox.showinfo("Message", "Login Successfully")
                 self.win.destroy()
