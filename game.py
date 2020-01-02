@@ -11,6 +11,7 @@ class Game:
     SCREEN_WIDTH = 700
     SCREEN_HEIGHT = 500
     STATUS_WAIT = 0
+    STATUS_QUIT = 1
 
     def __init__(self, userinfo):
         self.userinfo = userinfo
@@ -27,9 +28,10 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def run(self):
-        while True:
+        while self.status != self.STATUS_QUIT:
             self.display_frame(self.screen)
             self.clock.tick(60)
+            self.process_events()
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -37,12 +39,7 @@ class Game:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return True
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.game_over:
-                    self.__init__()
-
-        return False
+                self.status = self.STATUS_QUIT
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         myfont = pygame.font.Font(None if font is None else 'fonts/{}'.format(font), size)
@@ -67,6 +64,3 @@ class Game:
             )
 
         pygame.display.flip()
-
-    def __del__(self):
-        pygame.quit()
