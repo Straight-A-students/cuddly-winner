@@ -34,7 +34,10 @@ while True:
                 else:
                     response['ok'] = True
                     response['userinfo'] = userinfo
-                    logged_in_users.append(userinfo)
+                    logged_in_users.append({
+                        'address': address,
+                        'userinfo': userinfo
+                    })
             else:
                 response['ok'] = False
                 response['error'] = '帳號或密碼錯誤'
