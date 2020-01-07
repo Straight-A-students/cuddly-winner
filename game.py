@@ -33,6 +33,9 @@ class Person(pygame.sprite.Sprite):
     def stopdrop(self):
         self.speed[1] = 0
 
+    def jump(self):
+        self.speed[1] = -10
+
 
 class Box(pygame.sprite.Sprite):
     def __init__(self, pos, size, color):
@@ -109,10 +112,13 @@ class Game:
             to close the window. """
 
         for event in pygame.event.get():
+            print(event)
             if event.type == pygame.QUIT:
                 self.status = self.STATUS_QUIT
             if self.status == self.STATUS_READY:
                 self.process_events_ready(event)
+            if self.status == self.STATUS_INGAME:
+                self.process_events_ingame(event)
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
@@ -201,5 +207,11 @@ class Game:
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)
 
-    def process_events_ingame(self):
-        pass
+    def process_events_ingame(self, event):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.me.rect.x -= 3
+        elif keys[pygame.K_RIGHT]:
+            self.me.rect.x += 3
+        elif keys[pygame.K_SPACE] and self.me.speed[1] == 0:
+            self.me.jump()
