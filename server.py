@@ -19,6 +19,12 @@ def send_message(to, message):
     sock.sendto(message, to)
 
 
+def get_user_idx(address):
+    if logged_in_users[0]['address'] == address:
+        return 0
+    return 1
+
+
 logged_in_users = []  # 紀錄已登入使用者
 while True:
     try:
@@ -44,13 +50,27 @@ while True:
                     send_message(address, {'ok': True, 'userinfo': userinfo})
                     logged_in_users.append({
                         'address': address,
-                        'userinfo': userinfo
+                        'userinfo': userinfo,
+                        'status': 'waiting',
                     })
                     if len(logged_in_users) == 2:
-                        send_message(logged_in_users[0]['address'], {'status': 'ready'})
-                        send_message(logged_in_users[1]['address'], {'status': 'ready'})
+                        for i in range(2):
+                            send_message(logged_in_users[i]['address'], {'status': 'ready'})
+                            logged_in_users[i]['status'] = 'ready'
             else:
                 send_message(address, {'ok': False, 'error': '帳號或密碼錯誤'})
         except Exception as e:
             traceback.print_exc()
             send_message(address, {'ok': False, 'error': str(e)})
+
+    elif 'ready' in data:
+        logged_in_users[get_user_idx(address)]['status'] = 'ready_done' # 將目前玩家改為 ready_done
+
+        # 如果兩個玩家都 ready_done，則開始遊戲
+        all_ready_done = True
+        for i in range(2):
+            if logged_in_users[i]['status'] != 'ready_done':
+                all_ready_done = False
+        if all_ready_done:
+            for i in range(2):
+                send_message(logged_in_users[i]['address'], {'status': 'start'})

@@ -10,6 +10,10 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.settimeout(None)
 
+    def send_message(self, message):
+        message = json.dumps(message).encode()
+        self.sock.sendto(message, (SERVER_HOST, SERVER_PORT))
+
     def wait_server_message(self):
         try:
             self.sock.settimeout(1)
@@ -32,8 +36,7 @@ class Client:
                     'password': password
                 }
             }
-            payload = json.dumps(payload).encode()
-            self.sock.sendto(payload, (SERVER_HOST, SERVER_PORT))
+            self.send_message(payload)
             data = self.sock.recv(1024)
             print(data.decode())
 
@@ -50,3 +53,15 @@ class Client:
         except Exception as e:
             traceback.print_exc()
             return (False, e)
+
+    def ready_done(self):
+        try:
+            payload = {
+                'ready': 'done'
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)
+

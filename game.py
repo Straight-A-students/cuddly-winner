@@ -10,6 +10,8 @@ class Game:
     STATUS_WAIT = 0
     STATUS_QUIT = 1
     STATUS_READY = 2
+    STATUS_READY_WAIT = 3
+    STATUS_INGAME = 4
 
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
@@ -35,8 +37,12 @@ class Game:
             #
             message = self.linker.wait_server_message()
             if message:
-                if message['status'] == 'ready':
-                    self.status = self.STATUS_READY
+                if self.status == self.STATUS_WAIT:
+                    if message['status'] == 'ready':
+                        self.status = self.STATUS_READY
+                elif self.status == self.STATUS_READY_WAIT:
+                    if message['status'] == 'start':
+                        self.status = self.STATUS_INGAME
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -45,6 +51,8 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.status = self.STATUS_QUIT
+            if self.status == self.STATUS_READY:
+                self.process_events_ready(event)
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
@@ -70,14 +78,42 @@ class Game:
                 self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
                 center=True
             )
-        if self.status == self.STATUS_READY:
+        elif self.status in [self.STATUS_READY, self.STATUS_READY_WAIT]:
+            self.display_frame_ready()
+        elif self.status == self.STATUS_INGAME:
             self.show_text(
-                '準備開始',
+                '遊戲開始',
                 'NotoSansTC-Regular.otf',
                 25,
                 (255, 0, 0),
                 self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
                 center=True
             )
-
         pygame.display.flip()
+
+    def display_frame_ready(self):
+        messages = [
+            '準備開始',
+            '每一回合雙方同時移動，並選擇攻擊',
+            '移動時使用方向鍵移動，空白鍵跳躍',
+            '攻擊時使用上下調整力道，左右調整角度',
+        ]
+        if self.status == self.STATUS_READY:
+            messages.append('按下Enter後開始遊戲')
+        elif self.status == self.STATUS_READY_WAIT:
+            messages.append('你已準備開始遊戲，等待另一個玩家')
+        for i, message in enumerate(messages):
+            self.show_text(
+                message,
+                'NotoSansTC-Regular.otf',
+                25,
+                (255, 0, 0),
+                self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50 * (i - 2),
+                center=True
+            )
+
+    def process_events_ready(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                self.status = self.STATUS_READY_WAIT
+                self.linker.ready_done()
