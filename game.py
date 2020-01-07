@@ -1,6 +1,7 @@
 import random
 import time
 import pygame
+import os
 
 
 class Game:
@@ -46,7 +47,9 @@ class Game:
                 self.status = self.STATUS_QUIT
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
-        myfont = pygame.font.Font(None if font is None else 'fonts/{}'.format(font), size)
+        if font is not None:
+            font = os.path.realpath(os.path.join(os.path.dirname(__file__), 'fonts', font))
+        myfont = pygame.font.Font(font, size)
         TextSurf = myfont.render(text, True, color)
         if center:
             TextRect = TextSurf.get_rect()
