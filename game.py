@@ -8,7 +8,7 @@ class Game:
     SCREEN_HEIGHT = 500
     STATUS_WAIT = 0
     STATUS_QUIT = 1
-    STATUS_REALDY = 2
+    STATUS_READY = 2
 
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
@@ -35,7 +35,7 @@ class Game:
             message = self.linker.wait_server_message()
             if message:
                 if message['status'] == 'ready':
-                    self.status = self.STATUS_REALDY
+                    self.status = self.STATUS_READY
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -67,7 +67,7 @@ class Game:
                 self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
                 center=True
             )
-        if self.status == self.STATUS_REALDY:
+        if self.status == self.STATUS_READY:
             self.show_text(
                 '準備開始',
                 'NotoSansTC-Regular.otf',
