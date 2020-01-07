@@ -10,4 +10,5 @@ linker = Client()
 
 game = Game(['test', 'Test User'], linker)
 game.status = game.STATUS_INGAME
+game.initingame()
 game.run()

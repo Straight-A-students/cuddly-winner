@@ -4,6 +4,33 @@ import pygame
 import os
 
 
+def to_real_path(path):
+    if not isinstance(path, list):
+        path = [path]
+    return os.path.realpath(os.path.join(*([os.path.dirname(__file__)] + path)))
+
+
+class Person(pygame.sprite.Sprite):
+    def __init__(self, pos, id):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load(to_real_path('images/player{}.png'.format(id))).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+
+class Box(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+
+
 class Game:
     SCREEN_WIDTH = 700
     SCREEN_HEIGHT = 500
@@ -27,11 +54,8 @@ class Game:
         pygame.mouse.set_visible(False)
 
         self.clock = pygame.time.Clock()
-
-    def to_real_path(self, path):
-        if not isinstance(path, list):
-            path = [path]
-        return os.path.realpath(os.path.join(*([os.path.dirname(__file__)] + path)))
+        self.items = pygame.sprite.Group()
+        self.all_sprites_list = pygame.sprite.Group()
 
     def run(self):
         while self.status != self.STATUS_QUIT:
@@ -48,6 +72,7 @@ class Game:
                 elif self.status == self.STATUS_READY_WAIT:
                     if message['status'] == 'start':
                         self.status = self.STATUS_INGAME
+                        self.initingame()
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -61,7 +86,7 @@ class Game:
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
-            font = self.to_real_path(['fonts', font])
+            font = to_real_path(['fonts', font])
         myfont = pygame.font.Font(font, size)
         TextSurf = myfont.render(text, True, color)
         if center:
@@ -116,9 +141,16 @@ class Game:
                 self.status = self.STATUS_READY_WAIT
                 self.linker.ready_done()
 
+    def initingame(self):
+        person1 = Person((200, 200), 1)
+        self.all_sprites_list.add(person1)
+        person2 = Person((500, 200), 2)
+        self.all_sprites_list.add(person2)
+
     def display_frame_ingame(self):
-        background = pygame.image.load(self.to_real_path(['images', 'background.png'])).convert()
+        background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.screen.blit(background, (0, 0))
+        self.all_sprites_list.draw(self.screen)
 
     def process_events_ingame(self):
         pass
