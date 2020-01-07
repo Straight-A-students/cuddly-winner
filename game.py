@@ -28,7 +28,7 @@ class Person(pygame.sprite.Sprite):
         self.rect.y += self.speed[1]
 
     def drop(self):
-        self.speed[1] += 0.5
+        self.speed[1] += 0.7
 
     def stopdrop(self):
         self.speed[1] = 0
@@ -56,8 +56,9 @@ class Floor(pygame.sprite.Sprite):
 
 
 class Game:
-    SCREEN_WIDTH = 700
-    SCREEN_HEIGHT = 500
+    FPS = 30
+    SCREEN_WIDTH = 1280
+    SCREEN_HEIGHT = 700
     STATUS_WAIT = 0
     STATUS_QUIT = 1
     STATUS_READY = 2
@@ -85,7 +86,7 @@ class Game:
     def run(self):
         while self.status != self.STATUS_QUIT:
             self.display_frame(self.screen)
-            self.clock.tick(100)
+            self.clock.tick(self.FPS)
             self.process_events()
 
             #
@@ -97,7 +98,11 @@ class Game:
                 elif self.status == self.STATUS_READY_WAIT:
                     if message['status'] == 'start':
                         self.status = self.STATUS_INGAME
-                        self.initingame()
+                        self.initingame(me=message['me']['pos'], enemy=message['enemy']['pos'])
+                elif self.status == self.STATUS_INGAME:
+                    if message['status'] == 'update':
+                        self.enemy.rect.x = message['enemy']['pos'][0]
+                        self.enemy.rect.y = message['enemy']['pos'][1]
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -166,16 +171,17 @@ class Game:
                 self.status = self.STATUS_READY_WAIT
                 self.linker.ready_done()
 
-    def initingame(self):
-        person1 = Person((200, 200), 1)
-        self.all_sprites_list.add(person1)
-        person2 = Person((500, 200), 2)
-        self.all_sprites_list.add(person2)
+    def initingame(self, me, enemy):
+        self.me = Person(me, 1)
+        self.all_sprites_list.add(self.me)
+        self.enemy = Person(enemy, 2)
+        self.all_sprites_list.add(self.enemy)
 
         big_floor = Floor((0, 400), (self.SCREEN_WIDTH, 50), (144, 95, 0))
         self.floor_list.add(big_floor)
 
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
+        self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
     def display_frame_ingame(self):
         self.screen.blit(self.background, (0, 0))
@@ -183,14 +189,14 @@ class Game:
         self.all_sprites_list.update()
         self.floor_list.update()
 
-        for person in self.all_sprites_list:
-            collid = pygame.sprite.spritecollideany(person, self.floor_list)
-            if collid is None:
-                person.drop()
-            else:
-                person.rect.y = collid.rect.y - person.rect.height + 1
-                person.stopdrop()
-            person.update()
+        collid = pygame.sprite.spritecollideany(self.me, self.floor_list)
+        if collid is None:
+            self.me.drop()
+        else:
+            self.me.rect.y = collid.rect.y - self.me.rect.height + 1
+            self.me.stopdrop()
+        self.me.update()
+        self.linker.update_pos((self.me.rect.x, self.me.rect.y))
 
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)

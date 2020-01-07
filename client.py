@@ -65,3 +65,16 @@ class Client:
             traceback.print_exc()
             return (False, e)
 
+    def update_pos(self, pos):
+        try:
+            payload = {
+                'move': {
+                    'pos': pos
+                }
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)
+

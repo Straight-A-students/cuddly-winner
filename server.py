@@ -64,7 +64,7 @@ while True:
             send_message(address, {'ok': False, 'error': str(e)})
 
     elif 'ready' in data:
-        logged_in_users[get_user_idx(address)]['status'] = 'ready_done' # 將目前玩家改為 ready_done
+        logged_in_users[get_user_idx(address)]['status'] = 'ready_done'  # 將目前玩家改為 ready_done
 
         # 如果兩個玩家都 ready_done，則開始遊戲
         all_ready_done = True
@@ -72,5 +72,32 @@ while True:
             if logged_in_users[i]['status'] != 'ready_done':
                 all_ready_done = False
         if all_ready_done:
-            for i in range(2):
-                send_message(logged_in_users[i]['address'], {'status': 'start'})
+            pos1 = (200, 200)
+            pos2 = (1000, 200)
+            send_message(
+                logged_in_users[0]['address'],
+                {
+                    'status': 'start',
+                    'me': {'pos': pos1},
+                    'enemy': {'pos': pos2}
+                }
+            )
+            send_message(
+                logged_in_users[1]['address'],
+                {
+                    'status': 'start',
+                    'me': {'pos': pos2},
+                    'enemy': {'pos': pos1}
+                }
+            )
+    elif 'move' in data:
+        user_idx = get_user_idx(address)
+        send_message(
+            logged_in_users[1 - user_idx]['address'],
+            {
+                'status': 'update',
+                'enemy': {
+                    'pos': data['move']['pos']
+                }
+            }
+        )
