@@ -22,13 +22,24 @@ class Person(pygame.sprite.Sprite):
 
 
 class Box(pygame.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, size, color):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([size[0], size[1]])
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+
+
+class Floor(pygame.sprite.Sprite):
+    def __init__(self, pos, size, color):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.Surface([size[0], size[1]])
         self.image.fill(color)
 
         self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
 
 
 class Game:
@@ -56,6 +67,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.items = pygame.sprite.Group()
         self.all_sprites_list = pygame.sprite.Group()
+        self.floor_list = pygame.sprite.Group()
 
     def run(self):
         while self.status != self.STATUS_QUIT:
@@ -147,10 +159,14 @@ class Game:
         person2 = Person((500, 200), 2)
         self.all_sprites_list.add(person2)
 
+        big_floor = Floor((0, 300), (self.SCREEN_WIDTH, 50), (144, 95, 0))
+        self.floor_list.add(big_floor)
+
     def display_frame_ingame(self):
         background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.screen.blit(background, (0, 0))
         self.all_sprites_list.draw(self.screen)
+        self.floor_list.draw(self.screen)
 
     def process_events_ingame(self):
         pass
