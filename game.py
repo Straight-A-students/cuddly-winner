@@ -28,6 +28,11 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
+    def to_real_path(self, path):
+        if not isinstance(path, list):
+            path = [path]
+        return os.path.realpath(os.path.join(*([os.path.dirname(__file__)] + path)))
+
     def run(self):
         while self.status != self.STATUS_QUIT:
             self.display_frame(self.screen)
@@ -56,7 +61,7 @@ class Game:
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
-            font = os.path.realpath(os.path.join(os.path.dirname(__file__), 'fonts', font))
+            font = self.to_real_path(['fonts', font])
         myfont = pygame.font.Font(font, size)
         TextSurf = myfont.render(text, True, color)
         if center:
@@ -81,14 +86,7 @@ class Game:
         elif self.status in [self.STATUS_READY, self.STATUS_READY_WAIT]:
             self.display_frame_ready()
         elif self.status == self.STATUS_INGAME:
-            self.show_text(
-                '遊戲開始',
-                'NotoSansTC-Regular.otf',
-                25,
-                (255, 0, 0),
-                self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
-                center=True
-            )
+            self.display_frame_ingame()
         pygame.display.flip()
 
     def display_frame_ready(self):
@@ -117,3 +115,10 @@ class Game:
             if event.key == pygame.K_RETURN:
                 self.status = self.STATUS_READY_WAIT
                 self.linker.ready_done()
+
+    def display_frame_ingame(self):
+        background = pygame.image.load(self.to_real_path(['images', 'background.png'])).convert()
+        self.screen.blit(background, (0, 0))
+
+    def process_events_ingame(self):
+        pass
