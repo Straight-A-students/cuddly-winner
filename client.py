@@ -16,7 +16,7 @@ class Client:
 
     def wait_server_message(self):
         try:
-            self.sock.settimeout(1)
+            self.sock.settimeout(0.01)
             # print('try to recv')
             data = self.sock.recv(1024)
             self.sock.settimeout(None)

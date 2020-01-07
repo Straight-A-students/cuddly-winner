@@ -14,11 +14,24 @@ class Person(pygame.sprite.Sprite):
     def __init__(self, pos, id):
         pygame.sprite.Sprite.__init__(self)
 
+        self.id = id
+
         self.image = pygame.image.load(to_real_path('images/player{}.png'.format(id))).convert_alpha()
         self.image = pygame.transform.scale(self.image, (20, 50))
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+        self.speed = [0, 0]
+
+    def update(self):
+        self.rect.x += self.speed[0]
+        self.rect.y += self.speed[1]
+
+    def drop(self):
+        self.speed[1] += 0.5
+
+    def stopdrop(self):
+        self.speed[1] = 0
 
 
 class Box(pygame.sprite.Sprite):
@@ -72,7 +85,7 @@ class Game:
     def run(self):
         while self.status != self.STATUS_QUIT:
             self.display_frame(self.screen)
-            self.clock.tick(60)
+            self.clock.tick(100)
             self.process_events()
 
             #
@@ -159,12 +172,26 @@ class Game:
         person2 = Person((500, 200), 2)
         self.all_sprites_list.add(person2)
 
-        big_floor = Floor((0, 300), (self.SCREEN_WIDTH, 50), (144, 95, 0))
+        big_floor = Floor((0, 400), (self.SCREEN_WIDTH, 50), (144, 95, 0))
         self.floor_list.add(big_floor)
 
+        self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
+
     def display_frame_ingame(self):
-        background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
-        self.screen.blit(background, (0, 0))
+        self.screen.blit(self.background, (0, 0))
+
+        self.all_sprites_list.update()
+        self.floor_list.update()
+
+        for person in self.all_sprites_list:
+            collid = pygame.sprite.spritecollideany(person, self.floor_list)
+            if collid is None:
+                person.drop()
+            else:
+                person.rect.y = collid.rect.y - person.rect.height + 1
+                person.stopdrop()
+            person.update()
+
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)
 
