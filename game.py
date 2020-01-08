@@ -84,15 +84,15 @@ class Game:
     STATUS_INGAME_DONE = 6
     STATUS_INGAME_ACTION = 7
 
-    TUERN_TYPE_NONE = 0
-    TUERN_TYPE_MOVE = 1
-    TUERN_TYPE_ATTACK = 2
+    TURN_TYPE_NONE = 0
+    TURN_TYPE_MOVE = 1
+    TURN_TYPE_ATTACK = 2
 
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
         self.linker = linker
         self.status = self.STATUS_WAIT
-        self.tuern_type = self.TUERN_TYPE_NONE
+        self.turn_type = self.TURN_TYPE_NONE
 
         pygame.init()
 
@@ -340,16 +340,16 @@ class Game:
     def process_events_ingame(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
-                self.tuern_type = self.TUERN_TYPE_MOVE
+                self.turn_type = self.TURN_TYPE_MOVE
                 self.status = self.STATUS_INGAME_WORKING
             elif event.key == pygame.K_2:
-                self.tuern_type = self.TUERN_TYPE_ATTACK
+                self.turn_type = self.TURN_TYPE_ATTACK
                 self.status = self.STATUS_INGAME_WORKING
 
     def display_frame_ingame_working(self):
         self.display_items()
         if self.status == self.STATUS_INGAME_WORKING:
-            if self.tuern_type == self.TUERN_TYPE_MOVE:
+            if self.turn_type == self.TURN_TYPE_MOVE:
                 self.show_text(
                     '請使用左右控制角色位置、空白鍵跳躍，Enter鍵鎖定動作',
                     'NotoSansTC-Regular.otf',
@@ -358,7 +358,7 @@ class Game:
                     200, 600,
                     center=True
                 )
-            elif self.tuern_type == self.TUERN_TYPE_ATTACK:
+            elif self.turn_type == self.TURN_TYPE_ATTACK:
                 self.show_text(
                     '請使用左右控制攻擊角度、上下控制攻擊力道，Enter鍵鎖定動作',
                     'NotoSansTC-Regular.otf',
@@ -369,7 +369,7 @@ class Game:
                 )
 
     def process_events_ingame_working(self, event):
-        if self.tuern_type == self.TUERN_TYPE_MOVE:
+        if self.turn_type == self.TURN_TYPE_MOVE:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     self.me.speed[0] = -2
@@ -387,7 +387,7 @@ class Game:
                 elif event.key == pygame.K_RIGHT:
                     self.me.speed[0] = 0
 
-        elif self.tuern_type == self.TUERN_TYPE_ATTACK:
+        elif self.turn_type == self.TURN_TYPE_ATTACK:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.status = self.STATUS_INGAME_DONE
