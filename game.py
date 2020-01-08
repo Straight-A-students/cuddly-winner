@@ -208,10 +208,16 @@ class Game:
         self.floor_list.draw(self.screen)
 
     def process_events_ingame(self, event):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.me.rect.x -= 3
-        elif keys[pygame.K_RIGHT]:
-            self.me.rect.x += 3
-        elif keys[pygame.K_SPACE] and self.me.speed[1] == 0:
-            self.me.jump()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                self.me.speed[0] = -2
+            elif event.key == pygame.K_RIGHT:
+                self.me.speed[0] = 2
+            elif event.key == pygame.K_SPACE:
+                if self.me.speed[1] == 0:
+                    self.me.jump()
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                self.me.speed[0] = 0
+            elif event.key == pygame.K_RIGHT:
+                self.me.speed[0] = 0
