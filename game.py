@@ -182,6 +182,8 @@ class Game:
         self.floor_list = pygame.sprite.Group()
         self.weapon_list = pygame.sprite.Group()
 
+        self.winner_name = None
+
     def create_peron(self, pos, id):
         person = Person(pos, id)
         self.all_sprites_list.add(person)
@@ -282,6 +284,7 @@ class Game:
                         self.status = self.STATUS_INGAME
                     elif message['status'] == 'game_over':
                         self.status = self.STATUS_GAME_OVER
+                        self.winner_name = message['winner_name']
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -578,6 +581,7 @@ class Game:
 
         action_done = True
         game_over = False
+        winner_name = None
         if len(self.weapon_list) > 0:
             for wp in self.weapon_list:
                 if not wp.is_explosion:
@@ -588,7 +592,9 @@ class Game:
                 p.weapon.init()
                 if p.hp <= 0:
                     game_over = True
-            self.linker.action_done(game_over)
+            if self.me.hp > 0:
+                winner_name = self.userinfo[1]
+            self.linker.action_done(game_over, winner_name)
 
     def process_events_ingame_action(self, event):
         pass
@@ -600,6 +606,14 @@ class Game:
             25,
             (255, 0, 0),
             self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
+            center=True
+        )
+        self.show_text(
+            '{} WIN'.format(self.winner_name),
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50,
             center=True
         )
 

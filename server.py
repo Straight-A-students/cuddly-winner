@@ -135,18 +135,21 @@ while True:
             del logged_in_users[1]['turn_done']
     elif 'action_done':
         if data['game_over']:
-            send_message(
-                logged_in_users[0]['address'],
-                {
-                    'status': 'game_over',
-                }
-            )
-            send_message(
-                logged_in_users[1]['address'],
-                {
-                    'status': 'game_over',
-                }
-            )
+            if data['winner_name']:
+                send_message(
+                    logged_in_users[0]['address'],
+                    {
+                        'status': 'game_over',
+                        'winner_name': data['winner_name'],
+                    }
+                )
+                send_message(
+                    logged_in_users[1]['address'],
+                    {
+                        'status': 'game_over',
+                        'winner_name': data['winner_name'],
+                    }
+                )
         else:
             user_idx = get_user_idx(address)
             logged_in_users[user_idx]['action_done'] = True
