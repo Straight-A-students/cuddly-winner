@@ -86,6 +86,66 @@ class Game:
         self.all_sprites_list = pygame.sprite.Group()
         self.floor_list = pygame.sprite.Group()
 
+    def create_peron(self, pos, id):
+        person = Person(pos, id)
+        self.all_sprites_list.add(person)
+        return person
+
+    def create_floor(self, pos, size, color):
+        floor = Floor(pos, size, color)
+        self.floor_list.add(floor)
+        return floor
+
+    def get_collide_side(self, main, other):
+        '''回傳 main 的碰撞位置，上下左右'''
+        bias = 3
+        answer = [False, False, False, False]  # 上下左右
+
+        # 上
+        if (
+            main.rect.top < other.rect.bottom  # 角色上端在物件下端之上
+            and main.rect.bottom > other.rect.bottom  # 角色下端在物件下端之下
+            and not (
+                main.rect.right < other.rect.left + bias
+                or main.rect.left > other.rect.right - bias
+            )
+        ):
+            answer[0] = True
+
+        # 下
+        if (
+            main.rect.bottom > other.rect.top  # 角色下端在物件上端之下
+            and main.rect.top < other.rect.top  # 角色上端在物件上端之上
+            and not (
+                main.rect.right < other.rect.left + bias
+                or main.rect.left > other.rect.right - bias
+            )
+        ):
+            answer[1] = True
+
+        # 左
+        if (
+            main.rect.left < other.rect.right  # 角色左端在物件右端之左
+            and main.rect.right > other.rect.right  # 角色右端在物件左端之右
+            and not (
+                main.rect.bottom < other.rect.top + bias
+                or main.rect.top > other.rect.bottom - bias
+            )
+        ):
+            answer[2] = True
+
+        # 右
+        if (
+            main.rect.right > other.rect.left  # 角色右端在物件左端之右
+            and main.rect.left < other.rect.left  # 角色左端在物件左端之左
+            and not (
+                main.rect.bottom < other.rect.top + bias
+                or main.rect.top > other.rect.bottom - bias
+            )
+        ):
+            answer[3] = True
+        return answer
+
     def run(self):
         while self.status != self.STATUS_QUIT:
             self.display_frame(self.screen)
@@ -112,7 +172,7 @@ class Game:
             to close the window. """
 
         for event in pygame.event.get():
-            print(event)
+            # print(event)
             if event.type == pygame.QUIT:
                 self.status = self.STATUS_QUIT
             if self.status == self.STATUS_READY:
@@ -178,13 +238,11 @@ class Game:
                 self.linker.ready_done()
 
     def initingame(self, me, enemy):
-        self.me = Person(me, 1)
-        self.all_sprites_list.add(self.me)
-        self.enemy = Person(enemy, 2)
-        self.all_sprites_list.add(self.enemy)
+        self.me = self.create_peron(me, 1)
+        self.enemy = self.create_peron(enemy, 2)
 
-        big_floor = Floor((0, 400), (self.SCREEN_WIDTH, 50), (144, 95, 0))
-        self.floor_list.add(big_floor)
+        self.create_floor((100, 350), (self.SCREEN_WIDTH // 2, 50), (144, 95, 0))
+        self.create_floor((0, 400), (self.SCREEN_WIDTH, 50), (144, 95, 0))
 
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
@@ -195,12 +253,30 @@ class Game:
         self.all_sprites_list.update()
         self.floor_list.update()
 
-        collid = pygame.sprite.spritecollideany(self.me, self.floor_list)
-        if collid is None:
-            self.me.drop()
+        collids = pygame.sprite.spritecollide(self.me, self.floor_list, False)
+        if collids:
+            for collid in collids:
+                collid_side = self.get_collide_side(self.me, collid)
+
+                if collid_side[0]:
+                    print('{:.3f}'.format(time.time()), 'Top collide')
+                    self.me.speed[1] = 0
+                if collid_side[1]:
+                    print('{:.3f}'.format(time.time()), 'Down collide')
+                    self.me.rect.y = collid.rect.y - self.me.rect.height + 1
+                    self.me.stopdrop()
+                if collid_side[2]:
+                    print('{:.3f}'.format(time.time()), 'Left collide')
+                    self.me.rect.x = collid.rect.x + collid.rect.width - 1
+                    self.me.speed[0] = 0
+                if collid_side[3]:
+                    print('{:.3f}'.format(time.time()), 'Right collide')
+                    self.me.rect.x = collid.rect.x - self.me.rect.width + 1
+                    self.me.speed[0] = 0
         else:
-            self.me.rect.y = collid.rect.y - self.me.rect.height + 1
-            self.me.stopdrop()
+            print('{:.3f}'.format(time.time()), 'Dropping')
+            self.me.drop()
+
         self.me.update()
         self.linker.update_pos((self.me.rect.x, self.me.rect.y))
 
