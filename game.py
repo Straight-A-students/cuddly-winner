@@ -613,7 +613,6 @@ class Game:
 
         if action_done:
             for p in self.all_sprites_list:
-                p.weapon.init()
                 if p.hp <= 0:
                     game_over = True
             if game_over:
