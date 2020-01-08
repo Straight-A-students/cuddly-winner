@@ -27,6 +27,7 @@ class Weapon(pygame.sprite.Sprite):
         self.name = name
         self.speed = [0, 0]
         self.is_explosion = False
+        self.is_fire = False
 
     def set_pos(self, pos):
         self.rect.x = pos[0]
@@ -45,9 +46,9 @@ class Weapon(pygame.sprite.Sprite):
         ]
 
     def update(self):
-        if not self.is_explosion:
+        if self.is_fire and not self.is_explosion:
             self.speed[1] += 0.7
-            logging.info('speed %s', self.speed)
+            logging.info('weapon speed %s', self.speed)
             self.rect.x += self.speed[0]
             self.rect.y += self.speed[1]
 
@@ -72,6 +73,9 @@ class Person(pygame.sprite.Sprite):
         self.rect.y = pos[1]
         self.speed = [0, 0]
 
+        self.angle = 0
+        self.power = 0.5
+
     def update(self):
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
@@ -95,6 +99,15 @@ class Person(pygame.sprite.Sprite):
         self.weapon.set_pos((self.rect.x, self.rect.y))
         self.weapon.speed[0] = speed[0]
         self.weapon.speed[1] = speed[1]
+        self.weapon.is_fire = True
+        groups.add(self.weapon)
+
+    def aim(self, groups, weapon_name):
+        self.weapon.is_fire = False
+        self.weapon.set_weapon(weapon_name)
+        self.weapon.set_pos((self.rect.center[0] - self.weapon.rect.width // 2, self.rect.center[1]))
+        self.weapon.speed[0] = 0
+        self.weapon.speed[1] = 0
         groups.add(self.weapon)
 
 
@@ -217,7 +230,7 @@ class Game:
         return answer
 
     def scale_distance(self, pos1, pos2):
-        return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
+        return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
 
     def run(self):
         while self.status != self.STATUS_QUIT:
@@ -395,13 +408,26 @@ class Game:
                     d = self.scale_distance((p.rect.x, p.rect.y), (wp.rect.x, wp.rect.y))
                     p.hp -= 100 - d**2
 
-
         self.me.update()
         # self.linker.update_pos((self.me.rect.x, self.me.rect.y))
 
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)
         self.weapon_list.draw(self.screen)
+
+        if self.status == self.STATUS_INGAME_WORKING:
+            if self.turn_type == self.TURN_TYPE_ATTACK:
+                # arrow
+                pygame.draw.line(
+                    self.screen,
+                    (0, 0, 0),
+                    self.me.rect.center,
+                    (
+                        self.me.rect.center[0] + self.me.power * 100 * math.cos(self.me.angle / 180 * math.pi),
+                        self.me.rect.center[1] - self.me.power * 100 * math.sin(self.me.angle / 180 * math.pi),
+                    ),
+                    5
+                )
 
     def display_frame_ingame(self):
         self.display_items()
@@ -423,6 +449,7 @@ class Game:
             elif event.key == pygame.K_2:
                 self.turn_type = self.TURN_TYPE_ATTACK
                 self.status = self.STATUS_INGAME_WORKING
+                self.me.aim(self.weapon_list, 'grenade')
 
     def display_frame_ingame_working(self):
         self.display_items()
@@ -468,10 +495,22 @@ class Game:
 
         elif self.turn_type == self.TURN_TYPE_ATTACK:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_LEFT:
+                    self.me.angle += 1
+                elif event.key == pygame.K_RIGHT:
+                    self.me.angle -= 1
+                elif event.key == pygame.K_UP:
+                    self.me.power += 0.1
+                elif event.key == pygame.K_DOWN:
+                    self.me.power -= 0.1
+                elif event.key == pygame.K_RETURN:
                     self.me.weapon.set_speed(45, 25)
                     self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
                     self.status = self.STATUS_INGAME_DONE
+                self.me.angle = max(self.me.angle, -180)
+                self.me.angle = min(self.me.angle, 180)
+                self.me.power = max(self.me.power, 0)
+                self.me.power = min(self.me.power, 1)
 
     def display_frame_ingame_done(self):
         self.me.speed[0] = 0
