@@ -4,6 +4,7 @@ import pygame
 import os
 import math
 import logging
+from config import DEBUG_MODE
 
 
 logging.basicConfig(
@@ -342,10 +343,11 @@ class Game:
         elif self.status == self.STATUS_GAME_OVER:
             self.display_frame_game_over()
 
-        for i in range(100, self.SCREEN_HEIGHT, 100):
-            pygame.draw.line(self.screen, (255, 0, 0), (0, i), (self.SCREEN_WIDTH, i))
-        for i in range(100, self.SCREEN_WIDTH, 100):
-            pygame.draw.line(self.screen, (255, 0, 0), (i, 0), (i, self.SCREEN_HEIGHT))
+        if DEBUG_MODE:
+            for i in range(100, self.SCREEN_HEIGHT, 100):
+                pygame.draw.line(self.screen, (255, 0, 0), (0, i), (self.SCREEN_WIDTH, i))
+            for i in range(100, self.SCREEN_WIDTH, 100):
+                pygame.draw.line(self.screen, (255, 0, 0), (i, 0), (i, self.SCREEN_HEIGHT))
 
         pygame.display.flip()
 
