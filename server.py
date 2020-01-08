@@ -134,20 +134,34 @@ while True:
             del logged_in_users[0]['turn_done']
             del logged_in_users[1]['turn_done']
     elif 'action_done':
-        user_idx = get_user_idx(address)
-        logged_in_users[user_idx]['action_done'] = True
-        if 'action_done' in logged_in_users[0] and 'action_done' in logged_in_users[1]:
+        if data['game_over']:
             send_message(
                 logged_in_users[0]['address'],
                 {
-                    'status': 'action_done',
+                    'status': 'game_over',
                 }
             )
             send_message(
                 logged_in_users[1]['address'],
                 {
-                    'status': 'action_done',
+                    'status': 'game_over',
                 }
             )
-            del logged_in_users[0]['action_done']
-            del logged_in_users[1]['action_done']
+        else:
+            user_idx = get_user_idx(address)
+            logged_in_users[user_idx]['action_done'] = True
+            if 'action_done' in logged_in_users[0] and 'action_done' in logged_in_users[1]:
+                send_message(
+                    logged_in_users[0]['address'],
+                    {
+                        'status': 'action_done',
+                    }
+                )
+                send_message(
+                    logged_in_users[1]['address'],
+                    {
+                        'status': 'action_done',
+                    }
+                )
+                del logged_in_users[0]['action_done']
+                del logged_in_users[1]['action_done']

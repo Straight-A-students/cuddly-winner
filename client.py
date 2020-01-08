@@ -90,10 +90,11 @@ class Client:
             traceback.print_exc()
             return (False, e)
 
-    def action_done(self):
+    def action_done(self, game_over):
         try:
             payload = {
-                'action_done': ''
+                'action_done': '',
+                'game_over': game_over
             }
             self.send_message(payload)
 

@@ -29,6 +29,11 @@ class Weapon(pygame.sprite.Sprite):
         self.is_explosion = False
         self.is_fire = False
 
+    def init(self):
+        self.speed = [0, 0]
+        self.is_explosion = False
+        self.is_fire = False
+
     def set_pos(self, pos):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -151,6 +156,7 @@ class Game:
     STATUS_INGAME_WORKING = 5
     STATUS_INGAME_DONE = 6
     STATUS_INGAME_ACTION = 7
+    STATUS_GAME_OVER = 99
 
     TURN_TYPE_NONE = 0
     TURN_TYPE_MOVE = 1
@@ -274,6 +280,8 @@ class Game:
                     if message['status'] == 'action_done':
                         self.weapon_list.empty()
                         self.status = self.STATUS_INGAME
+                    elif message['status'] == 'game_over':
+                        self.status = self.STATUS_GAME_OVER
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -328,6 +336,8 @@ class Game:
             self.display_frame_ingame_done()
         elif self.status == self.STATUS_INGAME_ACTION:
             self.display_frame_ingame_action()
+        elif self.status == self.STATUS_GAME_OVER:
+            self.display_frame_game_over()
 
         for i in range(100, self.SCREEN_HEIGHT, 100):
             pygame.draw.line(self.screen, (255, 0, 0), (0, i), (self.SCREEN_WIDTH, i))
@@ -567,13 +577,31 @@ class Game:
         self.display_items()
 
         action_done = True
+        game_over = False
         if len(self.weapon_list) > 0:
             for wp in self.weapon_list:
                 if not wp.is_explosion:
                     action_done = False
 
         if action_done:
-            self.linker.action_done()
+            for p in self.all_sprites_list:
+                p.weapon.init()
+                if p.hp <= 0:
+                    game_over = True
+            self.linker.action_done(game_over)
 
     def process_events_ingame_action(self, event):
+        pass
+
+    def display_frame_game_over(self):
+        self.show_text(
+            'GAME OVER',
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
+            center=True
+        )
+
+    def process_events_game_over(self, event):
         pass
