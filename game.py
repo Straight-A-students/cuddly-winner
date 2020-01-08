@@ -54,7 +54,9 @@ class Weapon(pygame.sprite.Sprite):
 
     def explosion(self):
         self.image = pygame.image.load(to_real_path('images/{}_explosion.png'.format(self.name))).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (20, 20))
+        print(self.image.get_rect())
+        self.image = pygame.transform.scale(self.image, (100, 100))
+        print(self.image.get_rect())
         self.is_explosion = True
 
 
