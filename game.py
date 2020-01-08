@@ -75,15 +75,22 @@ class Person(pygame.sprite.Sprite):
 
         self.angle = 0
         self.power = 0.5
+        self.angle_d = 0
+        self.power_d = 0
 
     def update(self):
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
 
+        self.angle += self.angle_d
+        self.power += self.power_d
+
         self.rect.x = max(self.rect.x, 15)
         self.rect.x = min(self.rect.x, 1245)  # 1280-15-20
-        # self.rect.y = max(self.rect.y, 10)
-        # self.rect.y = min(self.rect.y, 1280)
+
+        self.angle = (self.angle + 180) % 360 - 180
+        self.power = max(self.power, 0)
+        self.power = min(self.power, 1)
 
     def drop(self):
         self.speed[1] += 0.7
@@ -496,21 +503,26 @@ class Game:
         elif self.turn_type == self.TURN_TYPE_ATTACK:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    self.me.angle += 1
+                    self.me.angle_d = 1
                 elif event.key == pygame.K_RIGHT:
-                    self.me.angle -= 1
+                    self.me.angle_d = -1
                 elif event.key == pygame.K_UP:
-                    self.me.power += 0.1
+                    self.me.power_d = 0.005
                 elif event.key == pygame.K_DOWN:
-                    self.me.power -= 0.1
+                    self.me.power_d = -0.005
                 elif event.key == pygame.K_RETURN:
                     self.me.weapon.set_speed(45, 25)
                     self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
                     self.status = self.STATUS_INGAME_DONE
-                self.me.angle = max(self.me.angle, -180)
-                self.me.angle = min(self.me.angle, 180)
-                self.me.power = max(self.me.power, 0)
-                self.me.power = min(self.me.power, 1)
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    self.me.angle_d = 0
+                elif event.key == pygame.K_RIGHT:
+                    self.me.angle_d = 0
+                elif event.key == pygame.K_UP:
+                    self.me.power_d = 0
+                elif event.key == pygame.K_DOWN:
+                    self.me.power_d = 0
 
     def display_frame_ingame_done(self):
         self.me.speed[0] = 0
