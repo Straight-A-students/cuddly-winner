@@ -54,9 +54,7 @@ class Weapon(pygame.sprite.Sprite):
 
     def explosion(self):
         self.image = pygame.image.load(to_real_path('images/{}_explosion.png'.format(self.name))).convert_alpha()
-        print(self.image.get_rect())
         self.image = pygame.transform.scale(self.image, (100, 100))
-        print(self.image.get_rect())
         self.is_explosion = True
 
 
@@ -414,6 +412,7 @@ class Game:
 
             for p in weapon_collide_1:
                 if p.id != wp.master:
+                    wp.explosion()
                     d = self.scale_distance((p.rect.x, p.rect.y), (wp.rect.x, wp.rect.y))
                     p.hp -= 100 - d**2
 
