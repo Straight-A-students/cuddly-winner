@@ -381,40 +381,49 @@ class Game:
                 collid_side = self.get_collide_side(self.me, collid)
 
                 if collid_side[0]:
-                    logging.info('Top collide')
+                    logging.debug('Top collide')
                     self.me.rect.y = collid.rect.y + self.me.rect.height + 1
                     self.me.speed[1] = 0
                     self.me.drop()
                 if collid_side[1]:
-                    logging.info('Down collide')
+                    logging.debug('Down collide')
                     self.me.rect.y = collid.rect.y - self.me.rect.height + 1
                     self.me.stopdrop()
                 if collid_side[2]:
-                    logging.info('Left collide')
+                    logging.debug('Left collide')
                     self.me.rect.x = collid.rect.x + collid.rect.width - 1
                     self.me.speed[0] = 0
                     self.me.drop()
                 if collid_side[3]:
-                    logging.info('Right collide')
+                    logging.debug('Right collide')
                     self.me.rect.x = collid.rect.x - self.me.rect.width + 1
                     self.me.speed[0] = 0
                     self.me.drop()
         else:
-            logging.info('Dropping')
+            logging.debug('Dropping')
             self.me.drop()
 
         for wp in self.weapon_list:
-            weapon_collide_1 = pygame.sprite.spritecollide(wp, self.all_sprites_list, False)
-            weapon_collide_2 = pygame.sprite.spritecollide(wp, self.items, False)
-            weapon_collide_3 = pygame.sprite.spritecollide(wp, self.floor_list, False)
-            if weapon_collide_2 or weapon_collide_3:
-                wp.explosion()
-
-            for p in weapon_collide_1:
-                if p.id != wp.master:
+            if not wp.is_explosion:
+                weapon_collide_1 = pygame.sprite.spritecollide(wp, self.all_sprites_list, False)
+                weapon_collide_2 = pygame.sprite.spritecollide(wp, self.items, False)
+                weapon_collide_3 = pygame.sprite.spritecollide(wp, self.floor_list, False)
+                if weapon_collide_2 or weapon_collide_3:
                     wp.explosion()
-                    d = self.scale_distance((p.rect.x, p.rect.y), (wp.rect.x, wp.rect.y))
-                    p.hp -= 100 - d**2
+
+                for p in weapon_collide_1:
+                    if p.id != wp.master:
+                        wp.explosion()
+
+                for p in self.all_sprites_list:
+                    if p.id != wp.master:
+                        if wp.is_explosion:
+                            d = self.scale_distance((p.rect.x, p.rect.y), (wp.rect.x, wp.rect.y))
+                            hp_d = int(-0.5 * d + 100)
+                            if hp_d < 0:
+                                hp_d = 0
+                            p.hp -= hp_d
+                            logging.info('user %s dis=%s hp -%s new_hp=%s', p.id, d, hp_d, p.hp)
 
         self.me.update()
         # self.linker.update_pos((self.me.rect.x, self.me.rect.y))
