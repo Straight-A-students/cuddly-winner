@@ -462,6 +462,22 @@ class Game:
                     ),
                     5
                 )
+        self.show_text(
+            '我方血量: {}'.format(self.me.hp),
+            'NotoSansTC-Regular.otf',
+            25,
+            (0, 0, 255),
+            200, 100,
+            center=False
+        )
+        self.show_text(
+            '對方血量: {}'.format(self.enemy.hp),
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            1000, 100,
+            center=False
+        )
 
     def display_frame_ingame(self):
         self.display_items()
