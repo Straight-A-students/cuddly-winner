@@ -2,6 +2,14 @@ import random
 import time
 import pygame
 import os
+import math
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s'
+)
 
 
 def to_real_path(path):
@@ -11,10 +19,34 @@ def to_real_path(path):
 
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, pos, name):
+    def __init__(self, pos=(0, 0), name='grenade'):
         pygame.sprite.Sprite.__init__(self)
 
+        self.pos = pos
         self.name = name
+        self.speed = [0, 0]
+
+    def set_pos(self, pos):
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+    def set_weapon(self, name):
+        self.name = name
+        self.image = pygame.image.load(to_real_path('images/{}.png'.format(name))).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.rect = self.image.get_rect()
+
+    def set_speed(self, angle, power):
+        self.speed = [
+            power * math.cos(angle / 180 * math.pi),
+            -power * math.sin(angle / 180 * math.pi),
+        ]
+
+    def update(self):
+        self.speed[1] += 0.7
+        logging.info('speed %s', self.speed)
+        self.rect.x += self.speed[0]
+        self.rect.y += self.speed[1]
 
 
 class Person(pygame.sprite.Sprite):
@@ -23,6 +55,7 @@ class Person(pygame.sprite.Sprite):
 
         self.id = id
         self.hp = 100
+        self.weapon = Weapon()
 
         self.image = pygame.image.load(to_real_path('images/player{}.png'.format(id))).convert_alpha()
         self.image = pygame.transform.scale(self.image, (20, 50))
@@ -48,6 +81,13 @@ class Person(pygame.sprite.Sprite):
 
     def jump(self):
         self.speed[1] = -10
+
+    def fire(self, groups, name, speed):
+        self.weapon.set_weapon(name)
+        self.weapon.set_pos((self.rect.x, self.rect.y))
+        self.weapon.speed[0] = speed[0]
+        self.weapon.speed[1] = speed[1]
+        groups.add(self.weapon)
 
 
 class Box(pygame.sprite.Sprite):
@@ -106,6 +146,7 @@ class Game:
         self.items = pygame.sprite.Group()
         self.all_sprites_list = pygame.sprite.Group()
         self.floor_list = pygame.sprite.Group()
+        self.weapon_list = pygame.sprite.Group()
 
     def create_peron(self, pos, id):
         person = Person(pos, id)
@@ -187,6 +228,17 @@ class Game:
                     if message['status'] == 'update':
                         self.enemy.rect.x = message['enemy']['pos'][0]
                         self.enemy.rect.y = message['enemy']['pos'][1]
+                elif self.status == self.STATUS_INGAME_DONE:
+                    if message['status'] == 'action':
+                        if message['type'] == self.TURN_TYPE_MOVE:
+                            self.enemy.rect.x = message['context'][0]
+                            self.enemy.rect.y = message['context'][1]
+                        elif message['type'] == self.TURN_TYPE_ATTACK:
+                            self.enemy.fire(self.weapon_list, message['context']['weapon_name'], message['context']['speed'])
+
+                        if self.turn_type == self.TURN_TYPE_ATTACK:
+                            self.me.fire(self.weapon_list, self.me.weapon.name, self.me.weapon.speed)
+                        self.status = self.STATUS_INGAME_ACTION
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -290,6 +342,7 @@ class Game:
         self.screen.blit(self.background, (0, 0))
         self.all_sprites_list.update()
         self.floor_list.update()
+        self.weapon_list.update()
 
         collids = pygame.sprite.spritecollide(self.me, self.floor_list, False)
         if collids:
@@ -297,26 +350,26 @@ class Game:
                 collid_side = self.get_collide_side(self.me, collid)
 
                 if collid_side[0]:
-                    print('{:.3f}'.format(time.time()), 'Top collide')
+                    logging.info('Top collide')
                     self.me.rect.y = collid.rect.y + self.me.rect.height + 1
                     self.me.speed[1] = 0
                     self.me.drop()
                 if collid_side[1]:
-                    print('{:.3f}'.format(time.time()), 'Down collide')
+                    logging.info('Down collide')
                     self.me.rect.y = collid.rect.y - self.me.rect.height + 1
                     self.me.stopdrop()
                 if collid_side[2]:
-                    print('{:.3f}'.format(time.time()), 'Left collide')
+                    logging.info('Left collide')
                     self.me.rect.x = collid.rect.x + collid.rect.width - 1
                     self.me.speed[0] = 0
                     self.me.drop()
                 if collid_side[3]:
-                    print('{:.3f}'.format(time.time()), 'Right collide')
+                    logging.info('Right collide')
                     self.me.rect.x = collid.rect.x - self.me.rect.width + 1
                     self.me.speed[0] = 0
                     self.me.drop()
         else:
-            print('{:.3f}'.format(time.time()), 'Dropping')
+            logging.info('Dropping')
             self.me.drop()
 
         self.me.update()
@@ -324,6 +377,7 @@ class Game:
 
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)
+        self.weapon_list.draw(self.screen)
 
     def display_frame_ingame(self):
         self.display_items()
@@ -334,7 +388,7 @@ class Game:
                 25,
                 (255, 0, 0),
                 200, 600,
-                center=True
+                center=False
             )
 
     def process_events_ingame(self, event):
@@ -356,7 +410,7 @@ class Game:
                     25,
                     (255, 0, 0),
                     200, 600,
-                    center=True
+                    center=False
                 )
             elif self.turn_type == self.TURN_TYPE_ATTACK:
                 self.show_text(
@@ -365,7 +419,7 @@ class Game:
                     25,
                     (255, 0, 0),
                     200, 600,
-                    center=True
+                    center=False
                 )
 
     def process_events_ingame_working(self, event):
@@ -379,6 +433,7 @@ class Game:
                     if self.me.speed[1] == 0:
                         self.me.jump()
                 elif event.key == pygame.K_RETURN:
+                    self.linker.turn_done(self.turn_type, (self.me.rect.x, self.me.rect.y))
                     self.status = self.STATUS_INGAME_DONE
 
             elif event.type == pygame.KEYUP:
@@ -390,6 +445,8 @@ class Game:
         elif self.turn_type == self.TURN_TYPE_ATTACK:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                    self.me.weapon.set_speed(45, 25)
+                    self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
                     self.status = self.STATUS_INGAME_DONE
 
     def display_frame_ingame_done(self):
@@ -401,7 +458,7 @@ class Game:
             25,
             (255, 0, 0),
             200, 600,
-            center=True
+            center=False
         )
 
     def process_events_ingame_done(self, event):
@@ -414,7 +471,7 @@ class Game:
             25,
             (255, 0, 0),
             200, 600,
-            center=True
+            center=False
         )
         self.display_items()
 

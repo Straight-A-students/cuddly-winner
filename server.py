@@ -1,20 +1,25 @@
 import json
 import socket
 import traceback
+import logging
 
 from config import SERVER_LISTEN, SERVER_PORT
 from db import DB
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s'
+)
 
 database = DB()
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((SERVER_LISTEN, SERVER_PORT))
-print('Listening at {}'.format(sock.getsockname()))
+logging.info('Listening at %s', sock.getsockname())
 
 
 def send_message(to, message):
-    print(to, message)
+    logging.info('---> %s: %s', to, text)
     message = json.dumps(message).encode()
     sock.sendto(message, to)
 
@@ -37,6 +42,8 @@ while True:
         data = json.loads(text)
     except Exception:
         continue
+
+    logging.info('<--- %s: %s', address, text)
 
     if 'login' in data:
         try:
@@ -101,3 +108,26 @@ while True:
                 }
             }
         )
+    elif 'turn_done' in data:
+        user_idx = get_user_idx(address)
+        logged_in_users[user_idx]['turn_done'] = {
+            'type': data['turn_done']['type'],
+            'context': data['turn_done']['context'],
+        }
+        if 'turn_done' in logged_in_users[0] and 'turn_done' in logged_in_users[1]:
+            send_message(
+                logged_in_users[0]['address'],
+                {
+                    'status': 'action',
+                    'type': logged_in_users[1]['turn_done']['type'],
+                    'context': logged_in_users[1]['turn_done']['context'],
+                }
+            )
+            send_message(
+                logged_in_users[1]['address'],
+                {
+                    'status': 'action',
+                    'type': logged_in_users[0]['turn_done']['type'],
+                    'context': logged_in_users[0]['turn_done']['context'],
+                }
+            )

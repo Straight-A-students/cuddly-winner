@@ -78,3 +78,16 @@ class Client:
             traceback.print_exc()
             return (False, e)
 
+    def turn_done(self, t_type, context):
+        try:
+            payload = {
+                'turn_done':{
+                    'type': t_type,
+                    'context': context
+                }
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)
