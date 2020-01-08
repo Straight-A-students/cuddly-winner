@@ -19,16 +19,16 @@ class DB:
 
     def user_login(self, user_id, password):
         try:
-            self.cursor.execute("SELECT * FROM player WHERE user_id=%s AND password=%s", (user_id, password))
+            self.cursor.execute("SELECT `user_id`, `user_name` FROM player WHERE user_id=%s AND password=%s", (user_id, password))
             row = self.cursor.fetchone()
             return row
         except Exception as e:
             traceback.print_exc()
             return False
 
-    def add_record(self, tup):
+    def add_record(self, user_id, win):
         try:
-            self.cursor.execute("INSERT INTO `record` (`user_id`, `score`) VALUES (%s, %s)", tup)
+            self.cursor.execute("INSERT INTO `record` (`user_id`, `win`) VALUES (%s, %s)", (user_id, win))
             self.con.commit()
             return True
         except Exception as e:

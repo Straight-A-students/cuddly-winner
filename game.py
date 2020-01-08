@@ -610,8 +610,9 @@ class Game:
                 p.weapon.init()
                 if p.hp <= 0:
                     game_over = True
-            if self.me.hp > 0:
-                winner_name = self.userinfo[1]
+            if game_over:
+                if self.me.hp > 0:
+                    winner_name = self.userinfo[0]
             self.linker.action_done(game_over, winner_name)
 
     def process_events_ingame_action(self, event):

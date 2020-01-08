@@ -30,6 +30,12 @@ def get_user_idx(address):
     return 1
 
 
+def get_user_idx_by_userid(username):
+    if logged_in_users[0]['userinfo'][0] == address:
+        return 0
+    return 1
+
+
 logged_in_users = []  # 紀錄已登入使用者
 while True:
     try:
@@ -136,20 +142,23 @@ while True:
     elif 'action_done':
         if data['game_over']:
             if data['winner_name']:
+                win_user_idx = get_user_idx_by_userid(data['winner_name'])
                 send_message(
                     logged_in_users[0]['address'],
                     {
                         'status': 'game_over',
-                        'winner_name': data['winner_name'],
+                        'winner_name': logged_in_users[win_user_idx]['userinfo'][1],
                     }
                 )
                 send_message(
                     logged_in_users[1]['address'],
                     {
                         'status': 'game_over',
-                        'winner_name': data['winner_name'],
+                        'winner_name': logged_in_users[win_user_idx]['userinfo'][1],
                     }
                 )
+                database.add_record(logged_in_users[win_user_idx]['userinfo'][0], 1)
+                database.add_record(logged_in_users[1 - win_user_idx]['userinfo'][0], 0)
         else:
             user_idx = get_user_idx(address)
             logged_in_users[user_idx]['action_done'] = True
