@@ -170,6 +170,8 @@ class Game:
         self.turn_type = self.TURN_TYPE_NONE
 
         pygame.init()
+        pygame.mixer.init()  # 音效功能初始化
+        self.explosion_sound = pygame.mixer.Sound(to_real_path(['sounds', 'bomb.ogg']))
 
         size = [self.SCREEN_WIDTH, self.SCREEN_HEIGHT]
         self.screen = pygame.display.set_mode(size)
@@ -281,6 +283,8 @@ class Game:
                         self.status = self.STATUS_INGAME_ACTION
                 elif self.status == self.STATUS_INGAME_ACTION:
                     if message['status'] == 'action_done':
+                        for p in self.all_sprites_list:
+                            p.weapon.init()
                         self.weapon_list.empty()
                         self.status = self.STATUS_INGAME
                     elif message['status'] == 'game_over':
@@ -429,10 +433,12 @@ class Game:
                 weapon_collide_3 = pygame.sprite.spritecollide(wp, self.floor_list, False)
                 if weapon_collide_2 or weapon_collide_3:
                     wp.explosion()
+                    self.explosion_sound.play()
 
                 for p in weapon_collide_1:
                     if p.id != wp.master:
                         wp.explosion()
+                        self.explosion_sound.play()
 
                 for p in self.all_sprites_list:
                     if p.id != wp.master:
