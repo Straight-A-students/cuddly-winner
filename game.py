@@ -19,12 +19,14 @@ def to_real_path(path):
 
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, pos=(0, 0), name='grenade'):
+    def __init__(self, master, pos=(0, 0), name='grenade'):
         pygame.sprite.Sprite.__init__(self)
 
+        self.master = master
         self.pos = pos
         self.name = name
         self.speed = [0, 0]
+        self.is_explosion = False
 
     def set_pos(self, pos):
         self.rect.x = pos[0]
@@ -32,7 +34,7 @@ class Weapon(pygame.sprite.Sprite):
 
     def set_weapon(self, name):
         self.name = name
-        self.image = pygame.image.load(to_real_path('images/{}.png'.format(name))).convert_alpha()
+        self.image = pygame.image.load(to_real_path('images/{}.png'.format(self.name))).convert_alpha()
         self.image = pygame.transform.scale(self.image, (20, 20))
         self.rect = self.image.get_rect()
 
@@ -43,10 +45,16 @@ class Weapon(pygame.sprite.Sprite):
         ]
 
     def update(self):
-        self.speed[1] += 0.7
-        logging.info('speed %s', self.speed)
-        self.rect.x += self.speed[0]
-        self.rect.y += self.speed[1]
+        if not self.is_explosion:
+            self.speed[1] += 0.7
+            logging.info('speed %s', self.speed)
+            self.rect.x += self.speed[0]
+            self.rect.y += self.speed[1]
+
+    def explosion(self):
+        self.image = pygame.image.load(to_real_path('images/{}_explosion.png'.format(self.name))).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.is_explosion = True
 
 
 class Person(pygame.sprite.Sprite):
@@ -55,7 +63,7 @@ class Person(pygame.sprite.Sprite):
 
         self.id = id
         self.hp = 100
-        self.weapon = Weapon()
+        self.weapon = Weapon(self.id)
 
         self.image = pygame.image.load(to_real_path('images/player{}.png'.format(id))).convert_alpha()
         self.image = pygame.transform.scale(self.image, (20, 50))
@@ -207,6 +215,9 @@ class Game:
         ):
             answer[3] = True
         return answer
+
+    def scale_distance(self, pos1, pos2):
+        return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2)
 
     def run(self):
         while self.status != self.STATUS_QUIT:
@@ -371,6 +382,19 @@ class Game:
         else:
             logging.info('Dropping')
             self.me.drop()
+
+        for wp in self.weapon_list:
+            weapon_collide_1 = pygame.sprite.spritecollide(wp, self.all_sprites_list, False)
+            weapon_collide_2 = pygame.sprite.spritecollide(wp, self.items, False)
+            weapon_collide_3 = pygame.sprite.spritecollide(wp, self.floor_list, False)
+            if weapon_collide_2 or weapon_collide_3:
+                wp.explosion()
+
+            for p in weapon_collide_1:
+                if p.id != wp.master:
+                    d = self.scale_distance((p.rect.x, p.rect.y), (wp.rect.x, wp.rect.y))
+                    p.hp -= 100 - d**2
+
 
         self.me.update()
         # self.linker.update_pos((self.me.rect.x, self.me.rect.y))
