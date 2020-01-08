@@ -8,7 +8,7 @@ from client import Client
 
 linker = Client()
 
-game = Game(['test', 'Test User'], linker)
-game.status = game.STATUS_INGAME
-game.initingame()
+_, userinfo = linker.user_login(sys.argv[1], sys.argv[2])
+
+game = Game(userinfo, linker)
 game.run()
