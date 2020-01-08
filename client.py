@@ -89,3 +89,14 @@ class Client:
         except Exception as e:
             traceback.print_exc()
             return (False, e)
+
+    def action_done(self):
+        try:
+            payload = {
+                'action_done': ''
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)

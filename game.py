@@ -270,6 +270,10 @@ class Game:
                         if self.turn_type == self.TURN_TYPE_ATTACK:
                             self.me.fire(self.weapon_list, self.me.weapon.name, self.me.weapon.speed)
                         self.status = self.STATUS_INGAME_ACTION
+                elif self.status == self.STATUS_INGAME_ACTION:
+                    if message['status'] == 'action_done':
+                        self.weapon_list.empty()
+                        self.status = self.STATUS_INGAME
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -561,6 +565,15 @@ class Game:
             center=False
         )
         self.display_items()
+
+        action_done = True
+        if len(self.weapon_list) > 0:
+            for wp in self.weapon_list:
+                if not wp.is_explosion:
+                    action_done = False
+
+        if action_done:
+            self.linker.action_done()
 
     def process_events_ingame_action(self, event):
         pass
