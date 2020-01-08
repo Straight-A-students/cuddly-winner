@@ -23,12 +23,12 @@ CREATE TABLE IF NOT EXISTS `player` (
 
 -- Dumping structure for table cuddly-winner.record
 CREATE TABLE IF NOT EXISTS `record` (
-  `i` int(11) NOT NULL AUTO_INCREMENT,
+  `index` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` char(6) NOT NULL,
   `time` timestamp NOT NULL DEFAULT current_timestamp(),
-  `score` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`i`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+  `win` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`index`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 
