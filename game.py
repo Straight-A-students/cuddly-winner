@@ -10,11 +10,19 @@ def to_real_path(path):
     return os.path.realpath(os.path.join(*([os.path.dirname(__file__)] + path)))
 
 
+class Weapon(pygame.sprite.Sprite):
+    def __init__(self, pos, name):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.name = name
+
+
 class Person(pygame.sprite.Sprite):
     def __init__(self, pos, id):
         pygame.sprite.Sprite.__init__(self)
 
         self.id = id
+        self.hp = 100
 
         self.image = pygame.image.load(to_real_path('images/player{}.png'.format(id))).convert_alpha()
         self.image = pygame.transform.scale(self.image, (20, 50))
@@ -72,11 +80,19 @@ class Game:
     STATUS_READY = 2
     STATUS_READY_WAIT = 3
     STATUS_INGAME = 4
+    STATUS_INGAME_WORKING = 5
+    STATUS_INGAME_DONE = 6
+    STATUS_INGAME_ACTION = 7
+
+    TUERN_TYPE_NONE = 0
+    TUERN_TYPE_MOVE = 1
+    TUERN_TYPE_ATTACK = 2
 
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
         self.linker = linker
         self.status = self.STATUS_WAIT
+        self.tuern_type = self.TUERN_TYPE_NONE
 
         pygame.init()
 
@@ -84,7 +100,7 @@ class Game:
         self.screen = pygame.display.set_mode(size)
 
         pygame.display.set_caption("cuddly-winner - User: {} Name: {}".format(self.userinfo[0], self.userinfo[1]))
-        pygame.mouse.set_visible(False)
+        # pygame.mouse.set_visible(False)
 
         self.clock = pygame.time.Clock()
         self.items = pygame.sprite.Group()
@@ -182,8 +198,14 @@ class Game:
                 self.status = self.STATUS_QUIT
             if self.status == self.STATUS_READY:
                 self.process_events_ready(event)
-            if self.status == self.STATUS_INGAME:
+            elif self.status == self.STATUS_INGAME:
                 self.process_events_ingame(event)
+            elif self.status == self.STATUS_INGAME_WORKING:
+                self.process_events_ingame_working(event)
+            elif self.status == self.STATUS_INGAME_DONE:
+                self.process_events_ingame_done(event)
+            elif self.status == self.STATUS_INGAME_ACTION:
+                self.process_events_ingame_action(event)
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
@@ -213,6 +235,18 @@ class Game:
             self.display_frame_ready()
         elif self.status == self.STATUS_INGAME:
             self.display_frame_ingame()
+        elif self.status == self.STATUS_INGAME_WORKING:
+            self.display_frame_ingame_working()
+        elif self.status == self.STATUS_INGAME_DONE:
+            self.display_frame_ingame_done()
+        elif self.status == self.STATUS_INGAME_ACTION:
+            self.display_frame_ingame_action()
+
+        for i in range(100, self.SCREEN_HEIGHT, 100):
+            pygame.draw.line(self.screen, (255, 0, 0), (0, i), (self.SCREEN_WIDTH, i))
+        for i in range(100, self.SCREEN_WIDTH, 100):
+            pygame.draw.line(self.screen, (255, 0, 0), (i, 0), (i, self.SCREEN_HEIGHT))
+
         pygame.display.flip()
 
     def display_frame_ready(self):
@@ -252,9 +286,8 @@ class Game:
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
-    def display_frame_ingame(self):
+    def display_items(self):
         self.screen.blit(self.background, (0, 0))
-
         self.all_sprites_list.update()
         self.floor_list.update()
 
@@ -287,22 +320,103 @@ class Game:
             self.me.drop()
 
         self.me.update()
-        self.linker.update_pos((self.me.rect.x, self.me.rect.y))
+        # self.linker.update_pos((self.me.rect.x, self.me.rect.y))
 
         self.all_sprites_list.draw(self.screen)
         self.floor_list.draw(self.screen)
 
+    def display_frame_ingame(self):
+        self.display_items()
+        if self.status == self.STATUS_INGAME:
+            self.show_text(
+                '回合開始。按1選擇角色移動，按2選擇武器攻擊',
+                'NotoSansTC-Regular.otf',
+                25,
+                (255, 0, 0),
+                200, 600,
+                center=True
+            )
+
     def process_events_ingame(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                self.me.speed[0] = -2
-            elif event.key == pygame.K_RIGHT:
-                self.me.speed[0] = 2
-            elif event.key == pygame.K_SPACE:
-                if self.me.speed[1] == 0:
-                    self.me.jump()
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                self.me.speed[0] = 0
-            elif event.key == pygame.K_RIGHT:
-                self.me.speed[0] = 0
+            if event.key == pygame.K_1:
+                self.tuern_type = self.TUERN_TYPE_MOVE
+                self.status = self.STATUS_INGAME_WORKING
+            elif event.key == pygame.K_2:
+                self.tuern_type = self.TUERN_TYPE_ATTACK
+                self.status = self.STATUS_INGAME_WORKING
+
+    def display_frame_ingame_working(self):
+        self.display_items()
+        if self.status == self.STATUS_INGAME_WORKING:
+            if self.tuern_type == self.TUERN_TYPE_MOVE:
+                self.show_text(
+                    '請使用左右控制角色位置、空白鍵跳躍，Enter鍵鎖定動作',
+                    'NotoSansTC-Regular.otf',
+                    25,
+                    (255, 0, 0),
+                    200, 600,
+                    center=True
+                )
+            elif self.tuern_type == self.TUERN_TYPE_ATTACK:
+                self.show_text(
+                    '請使用左右控制攻擊角度、上下控制攻擊力道，Enter鍵鎖定動作',
+                    'NotoSansTC-Regular.otf',
+                    25,
+                    (255, 0, 0),
+                    200, 600,
+                    center=True
+                )
+
+    def process_events_ingame_working(self, event):
+        if self.tuern_type == self.TUERN_TYPE_MOVE:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.me.speed[0] = -2
+                elif event.key == pygame.K_RIGHT:
+                    self.me.speed[0] = 2
+                elif event.key == pygame.K_SPACE:
+                    if self.me.speed[1] == 0:
+                        self.me.jump()
+                elif event.key == pygame.K_RETURN:
+                    self.status = self.STATUS_INGAME_DONE
+
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    self.me.speed[0] = 0
+                elif event.key == pygame.K_RIGHT:
+                    self.me.speed[0] = 0
+
+        elif self.tuern_type == self.TUERN_TYPE_ATTACK:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    self.status = self.STATUS_INGAME_DONE
+
+    def display_frame_ingame_done(self):
+        self.me.speed[0] = 0
+        self.display_items()
+        self.show_text(
+            '等待另一位玩家的動作',
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            200, 600,
+            center=True
+        )
+
+    def process_events_ingame_done(self, event):
+        pass
+
+    def display_frame_ingame_action(self):
+        self.show_text(
+            '等待另一位玩家的動作',
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            200, 600,
+            center=True
+        )
+        self.display_items()
+
+    def process_events_ingame_action(self, event):
+        pass
