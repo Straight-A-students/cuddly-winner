@@ -27,6 +27,11 @@ class Person(pygame.sprite.Sprite):
         self.rect.x += self.speed[0]
         self.rect.y += self.speed[1]
 
+        self.rect.x = max(self.rect.x, 15)
+        self.rect.x = min(self.rect.x, 1245)  # 1280-15-20
+        # self.rect.y = max(self.rect.y, 10)
+        # self.rect.y = min(self.rect.y, 1280)
+
     def drop(self):
         self.speed[1] += 0.7
 
@@ -241,8 +246,8 @@ class Game:
         self.me = self.create_peron(me, 1)
         self.enemy = self.create_peron(enemy, 2)
 
-        self.create_floor((100, 350), (self.SCREEN_WIDTH // 2, 50), (144, 95, 0))
-        self.create_floor((0, 400), (self.SCREEN_WIDTH, 50), (144, 95, 0))
+        self.create_floor((600, 250), (300, 50), (144, 95, 0))
+        self.create_floor((15, 400), (self.SCREEN_WIDTH - 30, 50), (144, 95, 0))
 
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
@@ -260,7 +265,9 @@ class Game:
 
                 if collid_side[0]:
                     print('{:.3f}'.format(time.time()), 'Top collide')
+                    self.me.rect.y = collid.rect.y + self.me.rect.height + 1
                     self.me.speed[1] = 0
+                    self.me.drop()
                 if collid_side[1]:
                     print('{:.3f}'.format(time.time()), 'Down collide')
                     self.me.rect.y = collid.rect.y - self.me.rect.height + 1
@@ -269,10 +276,12 @@ class Game:
                     print('{:.3f}'.format(time.time()), 'Left collide')
                     self.me.rect.x = collid.rect.x + collid.rect.width - 1
                     self.me.speed[0] = 0
+                    self.me.drop()
                 if collid_side[3]:
                     print('{:.3f}'.format(time.time()), 'Right collide')
                     self.me.rect.x = collid.rect.x - self.me.rect.width + 1
                     self.me.speed[0] = 0
+                    self.me.drop()
         else:
             print('{:.3f}'.format(time.time()), 'Dropping')
             self.me.drop()
