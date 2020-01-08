@@ -386,8 +386,19 @@ class Game:
         self.me = self.create_peron(me, 1)
         self.enemy = self.create_peron(enemy, 2)
 
-        self.create_floor((600, 250), (300, 50), (144, 95, 0))
-        self.create_floor((15, 400), (self.SCREEN_WIDTH - 30, 50), (144, 95, 0))
+        # create_floor(pos, size, color)
+        # 包起來
+        self.create_floor((-1000, -1000), (5000, 5), (144, 95, 0))  # 上
+        self.create_floor((-1000, self.SCREEN_HEIGHT + 1000), (5000, 5), (144, 95, 0))  # 下
+        self.create_floor((-1000, -1000), (5, 5000), (144, 95, 0))  # 左
+        self.create_floor((self.SCREEN_WIDTH + 1000, -1000), (5, 5000), (144, 95, 0))  # 右
+
+        self.create_floor((600, 100), (100, 400), (144, 95, 0))
+        self.create_floor((15, 300), (85, 50), (144, 95, 0))
+        self.create_floor((1200, 300), (80, 50), (144, 95, 0))
+
+        # Base floor
+        self.create_floor((15, 450), (self.SCREEN_WIDTH - 30, 100), (144, 95, 0))
 
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
