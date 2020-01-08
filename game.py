@@ -54,9 +54,9 @@ class Weapon(pygame.sprite.Sprite):
     def update(self):
         if self.is_fire and not self.is_explosion:
             self.speed[1] += 0.7
-            logging.info('weapon speed %s', self.speed)
             self.rect.x += self.speed[0]
             self.rect.y += self.speed[1]
+            logging.info('weapon speed {:.2f} {:.2f} pos {:.0f} {:.0f}'.format(self.speed[0], self.speed[1], self.rect.x, self.rect.y))
 
     def explosion(self):
         self.image = pygame.image.load(to_real_path('images/{}_explosion.png'.format(self.name))).convert_alpha()
