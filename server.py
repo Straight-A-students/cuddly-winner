@@ -19,7 +19,7 @@ logging.info('Listening at %s', sock.getsockname())
 
 
 def send_message(to, message):
-    logging.info('---> %s: %s', to, text)
+    logging.info('---> %s: %s', to, message)
     message = json.dumps(message).encode()
     sock.sendto(message, to)
 
