@@ -85,8 +85,8 @@ while True:
             if logged_in_users[i]['status'] != 'ready_done':
                 all_ready_done = False
         if all_ready_done:
-            pos1 = (200, 350)
-            pos2 = (1000, 350)
+            pos1 = (200, 400)
+            pos2 = (1000, 400)
             send_message(
                 logged_in_users[0]['address'],
                 {
