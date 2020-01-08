@@ -1,6 +1,7 @@
 from login import LoginWindow
 from game import Game
 from client import Client
+import logging
 
 linker = Client()
 
