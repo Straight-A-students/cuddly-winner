@@ -102,3 +102,14 @@ class Client:
         except Exception as e:
             traceback.print_exc()
             return (False, e)
+
+    def query(self):
+        try:
+            payload = {
+                'query': ''
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)

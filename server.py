@@ -139,7 +139,7 @@ while True:
             )
             del logged_in_users[0]['turn_done']
             del logged_in_users[1]['turn_done']
-    elif 'action_done':
+    elif 'action_done' in data:
         if data['game_over']:
             if data['winner_name']:
                 win_user_idx = get_user_idx_by_userid(data['winner_name'])
@@ -177,3 +177,10 @@ while True:
                 )
                 del logged_in_users[0]['action_done']
                 del logged_in_users[1]['action_done']
+    elif 'query' in data:
+        user_idx = get_user_idx(address)
+        records = database.query_records(logged_in_users[user_idx]['userinfo'][0])
+        send_message(
+            address,
+            records
+        )

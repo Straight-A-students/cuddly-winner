@@ -158,6 +158,7 @@ class Game:
     STATUS_INGAME_DONE = 6
     STATUS_INGAME_ACTION = 7
     STATUS_GAME_OVER = 99
+    STATUS_INFO = 87
 
     TURN_TYPE_NONE = 0
     TURN_TYPE_MOVE = 1
@@ -167,6 +168,7 @@ class Game:
         self.userinfo = userinfo
         self.linker = linker
         self.status = self.STATUS_WAIT
+        self.temp_status = self.STATUS_INFO
         self.turn_type = self.TURN_TYPE_NONE
 
         pygame.init()
@@ -186,6 +188,9 @@ class Game:
         self.weapon_list = pygame.sprite.Group()
 
         self.winner_name = None
+
+        self.record = []
+        self.rank = []
 
     def create_peron(self, pos, id):
         person = Person(pos, id)
@@ -290,6 +295,9 @@ class Game:
                     elif message['status'] == 'game_over':
                         self.status = self.STATUS_GAME_OVER
                         self.winner_name = message['winner_name']
+                elif self.status == self.STATUS_INFO:
+                    self.record = message['record']
+                    self.rank = message['rank']
 
     def process_events(self):
         """ Process all of the events. Return a "True" if we need
@@ -299,16 +307,23 @@ class Game:
             # print(event)
             if event.type == pygame.QUIT:
                 self.status = self.STATUS_QUIT
-            if self.status == self.STATUS_READY:
-                self.process_events_ready(event)
-            elif self.status == self.STATUS_INGAME:
-                self.process_events_ingame(event)
-            elif self.status == self.STATUS_INGAME_WORKING:
-                self.process_events_ingame_working(event)
-            elif self.status == self.STATUS_INGAME_DONE:
-                self.process_events_ingame_done(event)
-            elif self.status == self.STATUS_INGAME_ACTION:
-                self.process_events_ingame_action(event)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F1:
+                    self.status, self.temp_status = self.temp_status, self.status
+                    if self.status == self.STATUS_INFO:
+                        self.linker.query()
+                if self.status == self.STATUS_READY:
+                    self.process_events_ready(event)
+                elif self.status == self.STATUS_INGAME:
+                    self.process_events_ingame(event)
+                elif self.status == self.STATUS_INGAME_WORKING:
+                    self.process_events_ingame_working(event)
+                elif self.status == self.STATUS_INGAME_DONE:
+                    self.process_events_ingame_done(event)
+                elif self.status == self.STATUS_INGAME_ACTION:
+                    self.process_events_ingame_action(event)
+                elif self.status == self.STATUS_INFO:
+                    self.process_events_info(event)
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
@@ -346,6 +361,8 @@ class Game:
             self.display_frame_ingame_action()
         elif self.status == self.STATUS_GAME_OVER:
             self.display_frame_game_over()
+        elif self.status == self.STATUS_INFO:
+            self.display_frame_info()
 
         if DEBUG_MODE:
             for i in range(100, self.SCREEN_HEIGHT, 100):
@@ -653,4 +670,47 @@ class Game:
         )
 
     def process_events_game_over(self, event):
+        pass
+
+    def display_frame_info(self):
+        self.show_text(
+            '最近遊玩紀錄',
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            self.SCREEN_WIDTH // 2 - 200,
+            50,
+            center=True
+        )
+        for i, rd in enumerate(self.record):
+            self.show_text(
+                '{} {}'.format(rd[0], rd[1]),
+                'NotoSansTC-Regular.otf',
+                25,
+                (255, 0, 0),
+                self.SCREEN_WIDTH // 2 - 200,
+                100 + i * 50,
+                center=True
+            )
+        self.show_text(
+            '排名',
+            'NotoSansTC-Regular.otf',
+            25,
+            (255, 0, 0),
+            self.SCREEN_WIDTH // 2 + 200,
+            50,
+            center=True
+        )
+        for i, rk in enumerate(self.rank):
+            self.show_text(
+                '{} {}'.format(rk[0], rk[1]),
+                'NotoSansTC-Regular.otf',
+                25,
+                (255, 0, 0),
+                self.SCREEN_WIDTH // 2 + 200,
+                100 + i * 50,
+                center=True
+            )
+
+    def process_events_info(self, event):
         pass
