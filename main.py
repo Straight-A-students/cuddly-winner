@@ -12,7 +12,7 @@ login_window.add_frame()
 userinfo = login_window.get_userinfo()
 if not userinfo:
     exit()
-print(userinfo)
+logging.info('Login in as : %s', userinfo)
 
 game = Game(userinfo, linker)
 game.run()

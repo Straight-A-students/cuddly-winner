@@ -3,6 +3,7 @@ import socket
 import json
 from config import SERVER_HOST, SERVER_PORT
 import traceback
+import logging
 
 
 class Client:
@@ -17,15 +18,13 @@ class Client:
     def wait_server_message(self):
         try:
             self.sock.settimeout(0.01)
-            # print('try to recv')
             data = self.sock.recv(1024)
             self.sock.settimeout(None)
+            logging.info('<--- server: %s', data.decode())
             data = json.loads(data.decode())
-            print(data)
             return data
         except socket.timeout:
             self.sock.settimeout(None)
-            # print('Time out')
             return None
 
     def user_login(self, user_id, password):
@@ -38,7 +37,6 @@ class Client:
             }
             self.send_message(payload)
             data = self.sock.recv(1024)
-            print(data.decode())
 
             response = json.loads(data.decode())
 
