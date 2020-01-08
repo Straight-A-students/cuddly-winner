@@ -41,8 +41,8 @@ class Weapon(pygame.sprite.Sprite):
 
     def set_speed(self, angle, power):
         self.speed = [
-            power * math.cos(angle / 180 * math.pi),
-            -power * math.sin(angle / 180 * math.pi),
+            power * 35 * math.cos(angle / 180 * math.pi),
+            -power * 35 * math.sin(angle / 180 * math.pi),
         ]
 
     def update(self):
@@ -511,7 +511,9 @@ class Game:
                 elif event.key == pygame.K_DOWN:
                     self.me.power_d = -0.005
                 elif event.key == pygame.K_RETURN:
-                    self.me.weapon.set_speed(45, 25)
+                    self.me.weapon.set_speed(self.me.angle, self.me.power)
+                    self.me.angle_d = 0
+                    self.me.power_d = 0
                     self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
                     self.status = self.STATUS_INGAME_DONE
             elif event.type == pygame.KEYUP:
