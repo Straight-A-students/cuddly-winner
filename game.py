@@ -312,18 +312,18 @@ class Game:
                     self.status, self.temp_status = self.temp_status, self.status
                     if self.status == self.STATUS_INFO:
                         self.linker.query()
-                if self.status == self.STATUS_READY:
-                    self.process_events_ready(event)
-                elif self.status == self.STATUS_INGAME:
-                    self.process_events_ingame(event)
-                elif self.status == self.STATUS_INGAME_WORKING:
-                    self.process_events_ingame_working(event)
-                elif self.status == self.STATUS_INGAME_DONE:
-                    self.process_events_ingame_done(event)
-                elif self.status == self.STATUS_INGAME_ACTION:
-                    self.process_events_ingame_action(event)
-                elif self.status == self.STATUS_INFO:
-                    self.process_events_info(event)
+            if self.status == self.STATUS_READY:
+                self.process_events_ready(event)
+            elif self.status == self.STATUS_INGAME:
+                self.process_events_ingame(event)
+            elif self.status == self.STATUS_INGAME_WORKING:
+                self.process_events_ingame_working(event)
+            elif self.status == self.STATUS_INGAME_DONE:
+                self.process_events_ingame_done(event)
+            elif self.status == self.STATUS_INGAME_ACTION:
+                self.process_events_ingame_action(event)
+            elif self.status == self.STATUS_INFO:
+                self.process_events_info(event)
 
     def show_text(self, text, font, size, color, posX, posY, center=False):
         if font is not None:
