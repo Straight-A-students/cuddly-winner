@@ -93,9 +93,10 @@ class LoginWindow:
                     )
                     if user_name:
                         self.linker.signup(user_id, password, user_name)
+                        _, userinfo = self.linker.user_login(user_id, password)
                         messagebox.showinfo("Message", "Login Successfully")
                         self.win.destroy()
-                        self.userinfo = [user_id[0], user_name]
+                        self.userinfo = userinfo
                     else:
                         messagebox.showinfo("ALert!", '請重新登入或輸入名字以註冊帳號')
                         userinfo = None
