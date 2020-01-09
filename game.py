@@ -500,21 +500,23 @@ class Game:
                     5
                 )
         self.show_text(
-            '我方血量: {}'.format(self.me.hp),
+            '我方血量',
             'NotoSansTC-Regular.otf',
-            25,
+            20,
             (0, 0, 255),
-            200, 100,
+            100, 100,
             center=False
         )
+        pygame.draw.line(self.screen, (0, 0, 255), (200, 115), (200 + self.me.hp, 115), 10)
         self.show_text(
-            '對方血量: {}'.format(self.enemy.hp),
+            '對方血量',
             'NotoSansTC-Regular.otf',
-            25,
+            20,
             (255, 0, 0),
             1000, 100,
             center=False
         )
+        pygame.draw.line(self.screen, (255, 0, 0), (1100, 115), (1100 + self.enemy.hp, 115), 10)
 
     def display_frame_ingame(self):
         self.display_items()
