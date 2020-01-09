@@ -605,9 +605,9 @@ class Game:
         elif self.turn_type == self.TURN_TYPE_ATTACK:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    self.me.angle_d = 1
+                    self.me.angle_d = 0.5
                 elif event.key == pygame.K_RIGHT:
-                    self.me.angle_d = -1
+                    self.me.angle_d = -0.5
                 elif event.key == pygame.K_UP:
                     self.me.power_d = 0.005
                 elif event.key == pygame.K_DOWN:
