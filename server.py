@@ -143,24 +143,34 @@ while True:
             del logged_in_users[1]['turn_done']
     elif 'action_done' in data:
         if data['game_over']:
-            if data['winner_name']:
-                win_user_idx = get_user_idx_by_userid(data['winner_name'])
-                send_message(
-                    logged_in_users[0]['address'],
-                    {
-                        'status': 'game_over',
-                        'winner_name': logged_in_users[win_user_idx]['userinfo'][1],
-                    }
-                )
-                send_message(
-                    logged_in_users[1]['address'],
-                    {
-                        'status': 'game_over',
-                        'winner_name': logged_in_users[win_user_idx]['userinfo'][1],
-                    }
-                )
-                database.add_record(logged_in_users[win_user_idx]['userinfo'][0], 1)
-                database.add_record(logged_in_users[1 - win_user_idx]['userinfo'][0], 0)
+            user_idx = get_user_idx(address)
+            if data['hp'][0] <= 0 and data['hp'][1] <= 0:
+                winner_name = ''
+                database.add_record(logged_in_users[0]['userinfo'][0], 2)
+                database.add_record(logged_in_users[1]['userinfo'][0], 2)
+            elif data['hp'][0] > 0:
+                winner_name = logged_in_users[user_idx]['userinfo'][1]
+                database.add_record(logged_in_users[user_idx]['userinfo'][0], 1)
+                database.add_record(logged_in_users[1 - user_idx]['userinfo'][0], 0)
+            else:
+                winner_name = logged_in_users[1-user_idx]['userinfo'][1]
+                database.add_record(logged_in_users[user_idx]['userinfo'][0], 0)
+                database.add_record(logged_in_users[1 - user_idx]['userinfo'][0], 1)
+
+            send_message(
+                logged_in_users[0]['address'],
+                {
+                    'status': 'game_over',
+                    'winner_name': winner_name,
+                }
+            )
+            send_message(
+                logged_in_users[1]['address'],
+                {
+                    'status': 'game_over',
+                    'winner_name': winner_name,
+                }
+            )
         else:
             user_idx = get_user_idx(address)
             logged_in_users[user_idx]['action_done'] = True

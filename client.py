@@ -90,12 +90,12 @@ class Client:
             traceback.print_exc()
             return (False, e)
 
-    def action_done(self, game_over, winner_name):
+    def action_done(self, game_over, hp=None):
         try:
             payload = {
                 'action_done': '',
                 'game_over': game_over,
-                'winner_name': winner_name
+                'hp': hp
             }
             self.send_message(payload)
 

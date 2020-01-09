@@ -664,9 +664,9 @@ class Game:
                 if p.hp <= 0:
                     game_over = True
             if game_over:
-                if self.me.hp > 0:
-                    winner_name = self.userinfo[0]
-            self.linker.action_done(game_over, winner_name)
+                self.linker.action_done(game_over, (self.me.hp, self.enemy.hp))
+            else:
+                self.linker.action_done(game_over)
 
     def process_events_ingame_action(self, event):
         pass
@@ -680,8 +680,12 @@ class Game:
             self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2,
             center=True
         )
+        if self.winner_name == '':
+            win_text = 'DRAW'
+        else:
+            win_text = '{} WIN'.format(self.winner_name)
         self.show_text(
-            '{} WIN'.format(self.winner_name),
+            win_text,
             'NotoSansTC-Regular.otf',
             25,
             (255, 0, 0),

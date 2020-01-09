@@ -44,10 +44,12 @@ class DB:
             self.cursor.execute("SELECT `time`, `win` FROM record WHERE `user_id` = %s ORDER BY time DESC LIMIT 5", (user_id))
             rows = self.cursor.fetchall()
             for row in rows:
-                if row[1]:
-                    data['record'].append([row[0].strftime("%m/%d/%Y, %H:%M:%S"), 'WIN'])
-                else:
-                    data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'LOSS'])
+                if row[1] == 0:
+                    data['record'].append([row[0].strftime("%m/%d/%Y, %H:%M:%S"), 'LOSS'])
+                elif row[1] == 1:
+                    data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'WIN'])
+                elif row[1] == 2:
+                    data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'DRAW'])
 
             self.cursor.execute(
                 "SELECT user_name, SUM(win) AS wincnt FROM record LEFT JOIN player ON record.user_id = player.user_id GROUP BY record.user_Id ORDER BY wincnt DESC LIMIT 5")
