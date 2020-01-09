@@ -52,7 +52,7 @@ class DB:
                     data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'DRAW'])
 
             self.cursor.execute(
-                "SELECT user_name, SUM(win) AS wincnt FROM record LEFT JOIN player ON record.user_id = player.user_id GROUP BY record.user_Id ORDER BY wincnt DESC LIMIT 5")
+                "SELECT user_name, SUM(win) AS wincnt FROM record LEFT JOIN player ON record.user_id = player.user_id WHERE record.win = 1 GROUP BY record.user_Id ORDER BY wincnt DESC LIMIT 5")
             rows = self.cursor.fetchall()
             for row in rows:
                 data['rank'].append([row[0], int(row[1])])
