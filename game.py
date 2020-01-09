@@ -558,6 +558,23 @@ class Game:
                     200, 600,
                     center=False
                 )
+                if DEBUG_MODE:
+                    self.show_text(
+                        '角度 = {:.1f}'.format(self.me.angle),
+                        'NotoSansTC-Regular.otf',
+                        12,
+                        (0, 0, 0),
+                        self.me.rect.center[0], self.me.rect.center[1] + 40,
+                        center=True
+                    )
+                    self.show_text(
+                        '力道 = {:.2f}'.format(self.me.power),
+                        'NotoSansTC-Regular.otf',
+                        12,
+                        (0, 0, 0),
+                        self.me.rect.center[0], self.me.rect.center[1] + 60,
+                        center=True
+                    )
 
     def process_events_ingame_working(self, event):
         if self.turn_type == self.TURN_TYPE_MOVE:
