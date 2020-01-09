@@ -34,9 +34,9 @@ class LoginWindow:
 
         x, y = 70, 20
 
-        self.img = PhotoImage(file='images/login.png')
+        self.img = PhotoImage(file='images/icon.png')
         self.label = Label(self.frame, image=self.img)
-        self.label.place(x=x + 80, y=y + 0)
+        self.label.place(x=x + 105, y=y + 0)
 
         # now create a login form
         self.label = Label(self.frame, text="Player Login")
