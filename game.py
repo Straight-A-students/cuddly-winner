@@ -164,6 +164,9 @@ class Game:
     TURN_TYPE_MOVE = 1
     TURN_TYPE_ATTACK = 2
 
+    FLOOR_COLOR = (144, 95, 0)
+    HINT_COLOR = (255, 255, 255)
+
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
         self.linker = linker
@@ -406,17 +409,17 @@ class Game:
 
         # create_floor(pos, size, color)
         # 包起來
-        self.create_floor((-1000, -1000), (5000, 5), (144, 95, 0))  # 上
-        self.create_floor((-1000, self.SCREEN_HEIGHT + 1000), (5000, 5), (144, 95, 0))  # 下
-        self.create_floor((-1000, -1000), (5, 5000), (144, 95, 0))  # 左
-        self.create_floor((self.SCREEN_WIDTH + 1000, -1000), (5, 5000), (144, 95, 0))  # 右
+        self.create_floor((-1000, -1000), (5000, 5), self.FLOOR_COLOR)  # 上
+        self.create_floor((-1000, self.SCREEN_HEIGHT + 1000), (5000, 5), self.FLOOR_COLOR)  # 下
+        self.create_floor((-1000, -1000), (5, 5000), self.FLOOR_COLOR)  # 左
+        self.create_floor((self.SCREEN_WIDTH + 1000, -1000), (5, 5000), self.FLOOR_COLOR)  # 右
 
-        self.create_floor((600, 100), (100, 400), (144, 95, 0))
-        self.create_floor((15, 300), (85, 50), (144, 95, 0))
-        self.create_floor((1200, 300), (80, 50), (144, 95, 0))
+        self.create_floor((600, 100), (100, 400), self.FLOOR_COLOR)
+        self.create_floor((15, 300), (85, 50), self.FLOOR_COLOR)
+        self.create_floor((1200, 300), (80, 50), self.FLOOR_COLOR)
 
         # Base floor
-        self.create_floor((15, 450), (self.SCREEN_WIDTH - 30, 100), (144, 95, 0))
+        self.create_floor((15, 450), (self.SCREEN_WIDTH - 30, 100), self.FLOOR_COLOR)
 
         self.background = pygame.image.load(to_real_path(['images', 'background.png'])).convert()
         self.background = pygame.transform.scale(self.background, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
@@ -525,7 +528,7 @@ class Game:
                 '回合開始。按1選擇角色移動，按2選擇武器攻擊',
                 'NotoSansTC-Regular.otf',
                 25,
-                (255, 0, 0),
+                self.HINT_COLOR,
                 200, 600,
                 center=False
             )
@@ -548,7 +551,7 @@ class Game:
                     '請使用左右控制角色位置、空白鍵跳躍，Enter鍵鎖定動作',
                     'NotoSansTC-Regular.otf',
                     25,
-                    (255, 0, 0),
+                    self.HINT_COLOR,
                     200, 600,
                     center=False
                 )
@@ -557,7 +560,7 @@ class Game:
                     '請使用左右控制攻擊角度、上下控制攻擊力道，Enter鍵鎖定動作',
                     'NotoSansTC-Regular.otf',
                     25,
-                    (255, 0, 0),
+                    self.HINT_COLOR,
                     200, 600,
                     center=False
                 )
@@ -632,7 +635,7 @@ class Game:
             '等待另一位玩家的動作',
             'NotoSansTC-Regular.otf',
             25,
-            (255, 0, 0),
+            self.HINT_COLOR,
             200, 600,
             center=False
         )
