@@ -428,7 +428,7 @@ class Game:
         self.create_floor((-1000, -1000), (5000, 500), self.FLOOR_COLOR)  # 上
         self.create_floor((-1000, self.SCREEN_HEIGHT + 1000), (5000, 500), self.FLOOR_COLOR)  # 下
         self.create_floor((-1000, -1000), (500, 5000), self.FLOOR_COLOR)  # 左
-        self.create_floor((self.SCREEN_HEIGHT + 1000, -1000), (500, 5000), self.FLOOR_COLOR)  # 右
+        self.create_floor((self.SCREEN_WIDTH + 1000, -1000), (500, 5000), self.FLOOR_COLOR)  # 右
 
         self.create_floor((600, 100), (100, 400), self.FLOOR_COLOR)
         self.create_floor((15, 300), (85, 50), self.FLOOR_COLOR)
