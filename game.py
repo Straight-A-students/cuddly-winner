@@ -514,7 +514,8 @@ class Game:
             100, 100,
             center=False
         )
-        pygame.draw.line(self.screen, (0, 0, 255), (200, 115), (200 + self.me.hp, 115), 10)
+        if self.me.hp > 0:
+            pygame.draw.line(self.screen, (0, 0, 255), (200, 115), (200 + self.me.hp, 115), 10)
         self.show_text(
             '對方血量',
             'NotoSansTC-Regular.otf',
@@ -522,8 +523,9 @@ class Game:
             (255, 0, 0),
             1000, 100,
             center=False
-        )
-        pygame.draw.line(self.screen, (255, 0, 0), (1100, 115), (1100 + self.enemy.hp, 115), 10)
+        )        
+        if self.enemy.hp > 0:
+            pygame.draw.line(self.screen, (255, 0, 0), (1100, 115), (1100 + self.enemy.hp, 115), 10)
 
     def display_frame_ingame(self):
         self.display_items()
