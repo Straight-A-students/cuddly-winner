@@ -8,6 +8,9 @@ class LoginWindow:
     def __init__(self, linker):
         self.linker = linker
         self.win = Tk()
+
+        self.win.iconbitmap('images/icon_white.ico')
+
         # reset the window and background color
         self.canvas = Canvas(self.win,
                              width=600, height=500,
