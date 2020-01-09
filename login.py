@@ -26,7 +26,7 @@ class LoginWindow:
         self.win.resizable(width=False, height=False)
 
         # change the title of the window
-        self.win.title("Welcome | Login Window | Administrator")
+        self.win.title("歡迎來到 Cuddly Winner | 登入畫面")
 
     def add_frame(self):
         self.frame = Frame(self.win, height=400, width=450)
