@@ -19,9 +19,22 @@ class DB:
 
     def user_login(self, user_id, password):
         try:
-            self.cursor.execute("SELECT `user_id`, `user_name` FROM player WHERE user_id=%s AND password=%s", (user_id, password))
+            self.cursor.execute("SELECT `user_id`, `user_name`, `password` FROM player WHERE user_id=%s", (user_id))
             row = self.cursor.fetchone()
-            return row
+            if row is None:
+                return 1, None
+            if row[2] != password:
+                return 2, None
+            return 0, (row[0], row[1])
+        except Exception as e:
+            traceback.print_exc()
+            return False
+
+    def user_signup(self, user_id, password, username):
+        try:
+            self.cursor.execute("INSERT INTO `player` (`user_id`, `password`, `user_name`) VALUES (%s, %s, %s)", (user_id, password, username))
+            self.con.commit()
+            return True
         except Exception as e:
             traceback.print_exc()
             return False

@@ -53,8 +53,8 @@ while True:
 
     if 'login' in data:
         try:
-            userinfo = database.user_login(data['login']['user_id'], data['login']['password'])
-            if userinfo:
+            status, userinfo = database.user_login(data['login']['user_id'], data['login']['password'])
+            if status == 0:
                 if len(logged_in_users) >= 2:
                     send_message(address, {'ok': False, 'error': '房間已滿'})
                 elif len(logged_in_users) == 1 and logged_in_users[0]['userinfo'][0] == userinfo[0]:
@@ -70,12 +70,15 @@ while True:
                         for i in range(2):
                             send_message(logged_in_users[i]['address'], {'status': 'ready'})
                             logged_in_users[i]['status'] = 'ready'
-            else:
-                send_message(address, {'ok': False, 'error': '帳號或密碼錯誤'})
+            elif status == 1:
+                send_message(address, {'ok': False, 'error': 'no_userid'})
+            elif status == 2:
+                send_message(address, {'ok': False, 'error': 'wrong_password'})
         except Exception as e:
             traceback.print_exc()
             send_message(address, {'ok': False, 'error': str(e)})
-
+    elif 'signup' in data:
+        database.user_signup(data['user_id'], data['password'], data['username'])
     elif 'ready' in data:
         logged_in_users[get_user_idx(address)]['status'] = 'ready_done'  # 將目前玩家改為 ready_done
 
@@ -157,7 +160,7 @@ while True:
                     database.add_record(logged_in_users[user_idx]['userinfo'][0], 1)
                     database.add_record(logged_in_users[1 - user_idx]['userinfo'][0], 0)
                 else:
-                    winner_name = logged_in_users[1-user_idx]['userinfo'][1]
+                    winner_name = logged_in_users[1 - user_idx]['userinfo'][1]
                     database.add_record(logged_in_users[user_idx]['userinfo'][0], 0)
                     database.add_record(logged_in_users[1 - user_idx]['userinfo'][0], 1)
 

@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import simpledialog
 
 
 class LoginWindow:
@@ -84,8 +85,26 @@ class LoginWindow:
                 self.win.destroy()
                 self.userinfo = userinfo
             else:
-                messagebox.showinfo("ALert!", userinfo)
-                userinfo = None
+                if userinfo == 'no_userid':
+                    user_name = simpledialog.askstring(
+                        '註冊帳號',
+                        '君の名は？',
+                        parent=self.win
+                    )
+                    if user_name:
+                        self.linker.signup(user_id, password, user_name)
+                        messagebox.showinfo("Message", "Login Successfully")
+                        self.userinfo = [user_id, user_name]
+                        self.win.destroy()
+                    else:
+                        messagebox.showinfo("ALert!", '請重新登入或輸入名字以註冊帳號')
+                        userinfo = None
+                elif userinfo == 'wrong_password':
+                    messagebox.showinfo("ALert!", '密碼錯誤')
+                    userinfo = None
+                else:
+                    messagebox.showinfo("ALert!", userinfo)
+                    userinfo = None
 
     def get_userinfo(self):
         return self.userinfo

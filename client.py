@@ -113,3 +113,17 @@ class Client:
         except Exception as e:
             traceback.print_exc()
             return (False, e)
+
+    def signup(self, user_id, password, username):
+        try:
+            payload = {
+                'signup': '',
+                'user_id': user_id,
+                'password': password,
+                'username': username
+            }
+            self.send_message(payload)
+
+        except Exception as e:
+            traceback.print_exc()
+            return (False, e)
