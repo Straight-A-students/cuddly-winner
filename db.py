@@ -45,7 +45,7 @@ class DB:
             rows = self.cursor.fetchall()
             for row in rows:
                 if row[1] == 0:
-                    data['record'].append([row[0].strftime("%m/%d/%Y, %H:%M:%S"), 'LOSS'])
+                    data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'LOSS'])
                 elif row[1] == 1:
                     data['record'].append([row[0].strftime("%Y/%m/%d, %H:%M:%S"), 'WIN'])
                 elif row[1] == 2:
