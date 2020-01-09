@@ -86,12 +86,14 @@ while True:
                 all_ready_done = False
         if all_ready_done:
             pos1 = (200, 400)
+            angle1 = 45
             pos2 = (1000, 400)
+            angle2 = 135
             send_message(
                 logged_in_users[0]['address'],
                 {
                     'status': 'start',
-                    'me': {'pos': pos1},
+                    'me': {'pos': pos1, 'angle': angle1},
                     'enemy': {'pos': pos2}
                 }
             )
@@ -99,7 +101,7 @@ while True:
                 logged_in_users[1]['address'],
                 {
                     'status': 'start',
-                    'me': {'pos': pos2},
+                    'me': {'pos': pos2, 'angle': angle2},
                     'enemy': {'pos': pos1}
                 }
             )

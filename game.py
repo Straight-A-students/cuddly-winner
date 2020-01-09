@@ -270,7 +270,7 @@ class Game:
                 elif self.status == self.STATUS_READY_WAIT:
                     if message['status'] == 'start':
                         self.status = self.STATUS_INGAME
-                        self.initingame(me=message['me']['pos'], enemy=message['enemy']['pos'])
+                        self.initingame(me=message['me'], enemy=message['enemy'])
                 elif self.status == self.STATUS_INGAME:
                     if message['status'] == 'update':
                         self.enemy.rect.x = message['enemy']['pos'][0]
@@ -400,8 +400,9 @@ class Game:
                 self.linker.ready_done()
 
     def initingame(self, me, enemy):
-        self.me = self.create_peron(me, 1)
-        self.enemy = self.create_peron(enemy, 2)
+        self.me = self.create_peron(me['pos'], 1)
+        self.me.angle = me['angle']
+        self.enemy = self.create_peron(enemy['pos'], 2)
 
         # create_floor(pos, size, color)
         # 包起來
