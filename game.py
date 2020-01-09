@@ -181,6 +181,10 @@ class Game:
         size = [self.SCREEN_WIDTH, self.SCREEN_HEIGHT]
         self.screen = pygame.display.set_mode(size)
 
+        icon = pygame.image.load(to_real_path('images/icon.png'))
+        icon.set_alpha(0)
+        pygame.display.set_icon(icon)
+
         pygame.display.set_caption("cuddly-winner - User: {} Name: {}".format(self.userinfo[0], self.userinfo[1]))
         # pygame.mouse.set_visible(False)
 
