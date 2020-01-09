@@ -167,12 +167,18 @@ class Game:
     FLOOR_COLOR = (144, 95, 0)
     HINT_COLOR = (255, 255, 255)
 
+    IS_BUSY = True
+    IS_NOT_BUSY = False
+
     def __init__(self, userinfo, linker):
         self.userinfo = userinfo
         self.linker = linker
         self.status = self.STATUS_WAIT
         self.temp_status = self.STATUS_INFO
         self.turn_type = self.TURN_TYPE_NONE
+
+        self.will_turn_done = self.IS_NOT_BUSY
+        self.turn_done_info = None
 
         pygame.init()
         pygame.mixer.init()  # 音效功能初始化
@@ -267,6 +273,12 @@ class Game:
             self.display_frame(self.screen)
             self.clock.tick(self.FPS)
             self.process_events()
+
+            if self.will_turn_done == self.IS_NOT_BUSY:
+                if self.turn_done_info:
+                    self.linker.turn_done(*self.turn_done_info)
+                    self.turn_done_info = None
+                    # self.will_turn_done = self.IS_NOT_BUSY
 
             #
             message = self.linker.wait_server_message()
@@ -444,23 +456,31 @@ class Game:
                     self.me.rect.y = collid.rect.y + self.me.rect.height + 1
                     self.me.speed[1] = 0
                     self.me.drop()
+                    self.will_turn_done = self.IS_BUSY
                 if collid_side[1]:
                     logging.debug('Down collide')
                     self.me.rect.y = collid.rect.y - self.me.rect.height + 1
                     self.me.stopdrop()
+                    self.will_turn_done = self.IS_NOT_BUSY
+                    if self.turn_done_info:
+                        if self.turn_done_info[0] == self.TURN_TYPE_MOVE:
+                            self.turn_done_info[1] = (self.me.rect.x, self.me.rect.y)
                 if collid_side[2]:
                     logging.debug('Left collide')
                     self.me.rect.x = collid.rect.x + collid.rect.width - 1
                     self.me.speed[0] = 0
                     self.me.drop()
+                    self.will_turn_done = self.IS_BUSY
                 if collid_side[3]:
                     logging.debug('Right collide')
                     self.me.rect.x = collid.rect.x - self.me.rect.width + 1
                     self.me.speed[0] = 0
                     self.me.drop()
+                    self.will_turn_done = self.IS_BUSY
         else:
             logging.debug('Dropping')
             self.me.drop()
+            self.will_turn_done = self.IS_BUSY
 
         for wp in self.weapon_list:
             if not wp.is_explosion:
@@ -599,7 +619,10 @@ class Game:
                     if self.me.speed[1] == 0:
                         self.me.jump()
                 elif event.key == pygame.K_RETURN:
-                    self.linker.turn_done(self.turn_type, (self.me.rect.x, self.me.rect.y))
+                    self.me.speed[0] = 0
+                    self.me.speed[1] = 0
+                    # self.linker.turn_done(self.turn_type, (self.me.rect.x, self.me.rect.y))
+                    self.turn_done_info = [self.turn_type, (self.me.rect.x, self.me.rect.y)]
                     self.status = self.STATUS_INGAME_DONE
 
             elif event.type == pygame.KEYUP:
@@ -622,7 +645,8 @@ class Game:
                     self.me.weapon.set_speed(self.me.angle, self.me.power)
                     self.me.angle_d = 0
                     self.me.power_d = 0
-                    self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
+                    # self.linker.turn_done(self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed})
+                    self.turn_done_info = [self.turn_type, {'weapon_name': self.me.weapon.name, 'speed': self.me.weapon.speed}]
                     self.status = self.STATUS_INGAME_DONE
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -736,7 +760,7 @@ class Game:
         )
         for i, rk in enumerate(self.rank):
             self.show_text(
-                '{} {}'.format(rk[0], rk[1]),
+                '{}\t{}'.format(rk[0], rk[1]),
                 'NotoSansTC-Regular.otf',
                 25,
                 (255, 0, 0),
